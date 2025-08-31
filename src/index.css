@@ -43,13 +43,13 @@ All colors MUST be HSL.
     --kanban-progress: 47 100% 68%;
     --kanban-doing: 221 83% 53%;
     --kanban-done: 142 76% 36%;
-    
-    /* Effort colors */
-    --effort-xs: 142 76% 36%;
-    --effort-s: 47 100% 68%;
-    --effort-m: 32 95% 44%;
-    --effort-l: 0 84% 60%;
-    --effort-xl: 348 83% 47%;
+
+    /* Effort colors - subtle and elegant */
+    --effort-xs: 0 0% 85%;
+    --effort-s: 0 0% 75%;
+    --effort-m: 0 0% 65%;
+    --effort-l: 0 0% 55%;
+    --effort-xl: 0 0% 45%;
 
     /* Timer colors */
     --timer-active: 221 83% 53%;
@@ -113,6 +113,28 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Custom kanban tokens - dark mode */
+    --kanban-todo: 217.2 32.6% 17.5%;
+    --kanban-progress: 47 100% 58%;
+    --kanban-doing: 221 83% 63%;
+    --kanban-done: 142 76% 46%;
+
+    /* Effort colors - dark mode */
+    --effort-xs: 0 0% 25%;
+    --effort-s: 0 0% 35%;
+    --effort-m: 0 0% 45%;
+    --effort-l: 0 0% 55%;
+    --effort-xl: 0 0% 65%;
+
+    /* Timer colors - dark mode */
+    --timer-active: 142 76% 46%;
+    --timer-paused: 47 100% 58%;
+    --timer-complete: 221 83% 63%;
+
+    /* Shadow tokens - dark mode */
+    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+    --shadow-elevated: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
   }
 }
 
@@ -124,4 +146,101 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .transform-style-preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+}
+
+/* Markdown Editor Styles */
+.markdown-editor .w-md-editor {
+  background-color: transparent !important;
+}
+
+.markdown-editor .w-md-editor-text-pre,
+.markdown-editor .w-md-editor-text-input,
+.markdown-editor .w-md-editor-text {
+  color: hsl(var(--foreground)) !important;
+  background-color: transparent !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+.markdown-editor .w-md-editor-text-pre .token.title {
+  color: hsl(var(--primary)) !important;
+}
+
+.markdown-editor .w-md-editor-text-pre .token.bold {
+  color: hsl(var(--foreground)) !important;
+  font-weight: 600 !important;
+}
+
+.markdown-editor .w-md-editor-text-pre .token.code {
+  color: hsl(var(--muted-foreground)) !important;
+  background-color: hsl(var(--muted)) !important;
+  padding: 2px 4px !important;
+  border-radius: 3px !important;
+}
+
+.markdown-editor .w-md-editor-text-pre .token.url {
+  color: hsl(var(--primary)) !important;
+}
+
+.markdown-editor .w-md-editor-toolbar {
+  background-color: hsl(var(--background)) !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
+}
+
+.markdown-editor .w-md-editor-toolbar-divider {
+  background-color: hsl(var(--border)) !important;
+}
+
+.markdown-editor .w-md-editor-toolbar button {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.markdown-editor .w-md-editor-toolbar button:hover {
+  color: hsl(var(--foreground)) !important;
+  background-color: hsl(var(--muted)) !important;
+}
+
+/* Dynamic Greeting Styles */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Smooth transitions for time updates */
+.dynamic-greeting-time {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Subtle animation for greeting changes */
+@keyframes greeting-fade {
+  0% {
+    opacity: 0.8;
+    transform: translateY(-2px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.greeting-transition {
+  animation: greeting-fade 0.3s ease-out;
 }

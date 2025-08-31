@@ -1,4 +1,4 @@
-export type TaskStatus = 'todo' | 'progress' | 'doing' | 'done';
+export type TaskStatus = 'todo' | 'progress' | 'doing' | 'done' | 'archived';
 
 export type Effort = 'XS' | 'S' | 'M' | 'L' | 'XL';
 
@@ -20,6 +20,7 @@ export interface Task {
   status: TaskStatus;
   createdAt: string;
   updatedAt: string;
+  timeSpent?: number; // tempo acumulado em segundos
 }
 
 export interface PomodoroSession {
@@ -29,5 +30,7 @@ export interface PomodoroSession {
   endTime?: number;
   isActive: boolean;
   isPaused: boolean;
+  pausedAt?: number; // timestamp when paused
   remainingTime: number; // in seconds
+  isCompleted?: boolean; // indica se o timer foi concluído
 }

@@ -1,4 +1,4 @@
-# TimeMyWork Flow
+# TimeMy.Work
 
 Um aplicativo de produtividade que combina Kanban e Pomodoro para ajudar você a organizar suas tarefas e maximizar sua eficiência.
 

@@ -3,12 +3,21 @@ import { Task, TaskStatus } from '@/types/task';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { CreateTaskDialog } from '@/components/CreateTaskDialog';
 import { KanbanBoard } from '@/components/KanbanBoard';
+import { TaskDetailsPanel } from '@/components/TaskDetailsPanel';
+import { CenteredDateTime } from '@/components/DynamicGreeting';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
-import { Timer, Plus } from 'lucide-react';
-import heroImage from '@/assets/hero-productivity.jpg';
+import { Archive } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import heroImage from '@/assets/hero-productivity.webp';
+import timemyworkLogoH from '@/assets/Timemywork-h.webp';
+import timemyworkLogoM from '@/assets/timemywork-m.webp';
 
 const Index = () => {
   const [tasks, setTasks] = useLocalStorage<Task[]>('timemywork-tasks', []);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [showTaskDetails, setShowTaskDetails] = useState(false);
+
 
   const handleCreateTask = (newTaskData: Omit<Task, 'createdAt' | 'updatedAt'>) => {
     const now = new Date().toISOString();
@@ -21,49 +30,117 @@ const Index = () => {
   };
 
   const handleUpdateTask = (taskId: number, updates: Partial<Task>) => {
-    setTasks(tasks.map(task => 
-      task.id === taskId 
+    setTasks(tasks.map(task =>
+      task.id === taskId
         ? { ...task, ...updates, updatedAt: new Date().toISOString() }
         : task
     ));
   };
 
+  const handleDeleteTask = (taskId: number) => {
+    setTasks(tasks.filter(task => task.id !== taskId));
+  };
+
+  const handleViewDetails = (task: Task) => {
+    setSelectedTask(task);
+    setShowTaskDetails(true);
+  };
+
+  const handleCloseDetails = () => {
+    setShowTaskDetails(false);
+    setSelectedTask(null);
+  };
+
+  const handleEditFromDetails = () => {
+    // Close details panel - the edit dialog will be handled by the TaskCard
+    setShowTaskDetails(false);
+  };
+
   const handleMoveTask = (taskId: number, newStatus: TaskStatus) => {
-    handleUpdateTask(taskId, { status: newStatus });
+    // Get current active tasks (excluding archived)
+    const currentActiveTasks = tasks.filter(task => task.status !== 'archived');
+
+    // Prepare updates array for batch processing
+    const updates: Array<{ id: number; status: TaskStatus }> = [];
+
+    // Regras de limitação: máximo 1 task em "doing" e 1 em "progress" (Row)
+    if (newStatus === 'doing') {
+      const tasksInDoing = currentActiveTasks.filter(task => task.status === 'doing' && task.id !== taskId);
+      if (tasksInDoing.length > 0) {
+        // Check if there's already a task in progress to move the current doing task
+        const tasksInProgress = currentActiveTasks.filter(task => task.status === 'progress');
+        if (tasksInProgress.length > 0) {
+          // Move current progress task to "To Do" first
+          updates.push({ id: tasksInProgress[0].id, status: 'todo' });
+        }
+        // Move current doing task to progress
+        updates.push({ id: tasksInDoing[0].id, status: 'progress' });
+      }
+    }
+
+    if (newStatus === 'progress') {
+      const tasksInProgress = currentActiveTasks.filter(task => task.status === 'progress' && task.id !== taskId);
+      if (tasksInProgress.length > 0) {
+        // Move a tarefa atual em "progress" para coluna "To Do"
+        updates.push({ id: tasksInProgress[0].id, status: 'todo' });
+      }
+    }
+
+    // Apply all updates
+    updates.forEach(update => {
+      handleUpdateTask(update.id, { status: update.status });
+    });
+
+    // When a task is marked as "done", automatically archive it
+    const finalStatus = newStatus === 'done' ? 'archived' : newStatus;
+    handleUpdateTask(taskId, { status: finalStatus });
   };
 
   const existingIds = tasks.map(task => task.id);
 
-  // Empty state - no tasks created yet
-  if (tasks.length === 0) {
+  // Filter out archived tasks for the kanban view
+  const activeTasks = tasks.filter(task => task.status !== 'archived');
+  const archivedTasks = tasks.filter(task => task.status === 'archived');
+
+
+
+  // Empty state - no active tasks
+  if (activeTasks.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-background relative">
+        {/* Theme Toggle - Canto Superior Direito */}
+        <div className="absolute top-4 right-4 z-10">
+          <ThemeToggle />
+        </div>
         <div className="max-w-4xl mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
           <div className="text-center lg:text-left space-y-6">
             <div className="space-y-2">
-              <div className="flex items-center justify-center lg:justify-start gap-2 mb-4">
-                <Timer className="h-8 w-8" />
-                <h1 className="text-4xl font-bold">time my work</h1>
+              <div className="flex items-center justify-center lg:justify-start mb-4">
+                <img
+                  src={timemyworkLogoH}
+                  alt="Time My Work"
+                  className="h-12 w-auto"
+                />
               </div>
               <p className="text-xl text-muted-foreground max-w-md mx-auto lg:mx-0">
                 Organize suas tarefas com kanban e aumente sua produtividade com pomodoro
               </p>
             </div>
-            
-            <CreateTaskDialog 
+
+            <CreateTaskDialog
               onCreateTask={handleCreateTask}
               existingIds={existingIds}
             />
-            
+
             <p className="text-sm text-muted-foreground">
               Crie sua primeira tarefa para começar
             </p>
           </div>
-          
+
           <div className="hidden lg:block">
-            <img 
-              src={heroImage} 
-              alt="Plataforma de produtividade com kanban e pomodoro" 
+            <img
+              src={heroImage}
+              alt="Plataforma de produtividade com kanban e pomodoro"
               className="w-full h-auto rounded-lg shadow-[var(--shadow-elevated)]"
             />
           </div>
@@ -76,31 +153,74 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Timer className="h-6 w-6" />
-            <h1 className="text-2xl font-bold">time my work</h1>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">
-              {tasks.length} tarefa{tasks.length !== 1 ? 's' : ''}
-            </span>
-            <CreateTaskDialog 
-              onCreateTask={handleCreateTask}
-              existingIds={existingIds}
+      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-3 sm:py-4 grid grid-cols-3 items-center">
+          {/* Logo - Esquerda */}
+          <div className="flex items-center">
+            {/* Logo para desktop */}
+            <img
+              src={timemyworkLogoH}
+              alt="Time My Work"
+              className="hidden sm:block h-8 w-auto"
             />
+            {/* Logo para mobile */}
+            <img
+              src={timemyworkLogoM}
+              alt="Time My Work"
+              className="block sm:hidden h-8 w-auto"
+            />
+          </div>
+
+          {/* Data e Horário - Centro */}
+          <CenteredDateTime />
+
+          {/* Controles - Direita */}
+          <div className="flex items-center justify-end gap-2 sm:gap-4">
+            <div className="flex items-center gap-1 sm:gap-2">
+              {archivedTasks.length > 0 && (
+                <Link to="/archive">
+                  <Button variant="ghost" size="sm" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground gap-1 h-8 sm:h-9 px-2 sm:px-3 touch-manipulation">
+                    <Archive className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">Archive</span>
+                  </Button>
+                </Link>
+              )}
+              <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
+                {activeTasks.length} tarefa{activeTasks.length !== 1 ? 's' : ''}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <CreateTaskDialog
+                onCreateTask={handleCreateTask}
+                existingIds={existingIds}
+              />
+            </div>
           </div>
         </div>
       </header>
 
       {/* Kanban Board */}
-      <KanbanBoard 
-        tasks={tasks}
+      <KanbanBoard
+        tasks={activeTasks}
         onUpdateTask={handleUpdateTask}
         onMoveTask={handleMoveTask}
+        onDeleteTask={handleDeleteTask}
+        onViewDetails={handleViewDetails}
       />
+
+      {/* Task Details Panel */}
+      <TaskDetailsPanel
+        isOpen={showTaskDetails}
+        onClose={handleCloseDetails}
+        task={selectedTask}
+        onUpdateTask={handleUpdateTask}
+        onMoveTask={handleMoveTask}
+        onDeleteTask={handleDeleteTask}
+        onEditTask={handleEditFromDetails}
+      />
+
+
     </div>
   );
 };

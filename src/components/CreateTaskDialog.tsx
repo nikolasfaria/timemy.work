@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { MarkdownEditor } from './MarkdownEditor';
 import {
   Select,
   SelectContent,
@@ -21,8 +21,8 @@ import { Plus, X } from 'lucide-react';
 import { Task, Effort, Complexity, ChecklistItem } from '@/types/task';
 
 interface CreateTaskDialogProps {
-  onCreateTask: (task: Omit<Task, 'createdAt' | 'updatedAt'>) => void;
-  existingIds: number[];
+  readonly onCreateTask: (task: Omit<Task, 'createdAt' | 'updatedAt'>) => void;
+  readonly existingIds: number[];
 }
 
 export function CreateTaskDialog({ onCreateTask, existingIds }: CreateTaskDialogProps) {
@@ -53,10 +53,10 @@ export function CreateTaskDialog({ onCreateTask, existingIds }: CreateTaskDialog
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const taskId = parseInt(id);
     if (!title.trim() || !id.trim() || isNaN(taskId)) return;
-    
+
     if (existingIds.includes(taskId)) {
       alert('ID já existe. Por favor, escolha um ID diferente.');
       return;
@@ -73,7 +73,7 @@ export function CreateTaskDialog({ onCreateTask, existingIds }: CreateTaskDialog
     };
 
     onCreateTask(newTask);
-    
+
     // Reset form
     setTitle('');
     setId('');
@@ -97,7 +97,7 @@ export function CreateTaskDialog({ onCreateTask, existingIds }: CreateTaskDialog
         <DialogHeader>
           <DialogTitle>Criar Nova Tarefa</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -110,7 +110,7 @@ export function CreateTaskDialog({ onCreateTask, existingIds }: CreateTaskDialog
                 required
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="id">ID *</Label>
               <Input
@@ -126,12 +126,13 @@ export function CreateTaskDialog({ onCreateTask, existingIds }: CreateTaskDialog
 
           <div className="space-y-2">
             <Label htmlFor="description">Descrição</Label>
-            <Textarea
-              id="description"
+            <MarkdownEditor
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={setDescription}
               placeholder="Descrição detalhada da tarefa (suporte a markdown)"
-              className="min-h-[100px]"
+              expandable={true}
+              minHeight={100}
+              maxHeight={300}
             />
           </div>
 
@@ -174,13 +175,18 @@ export function CreateTaskDialog({ onCreateTask, existingIds }: CreateTaskDialog
                 value={newChecklistItem}
                 onChange={(e) => setNewChecklistItem(e.target.value)}
                 placeholder="Adicionar item ao checklist"
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddChecklistItem())}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddChecklistItem();
+                  }
+                }}
               />
               <Button type="button" onClick={handleAddChecklistItem} size="sm">
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
-            
+
             {checklist.length > 0 && (
               <div className="space-y-1 max-h-32 overflow-y-auto">
                 {checklist.map((item) => (
