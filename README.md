@@ -1,73 +1,70 @@
-# Welcome to your Lovable project
+# TimeMyWork Flow
 
-## Project info
+Um aplicativo de produtividade que combina Kanban e Pomodoro para ajudar você a organizar suas tarefas e maximizar sua eficiência.
 
-**URL**: https://lovable.dev/projects/63af8146-e126-41d4-8343-b25820ddda78
+## Sobre o Projeto
 
-## How can I edit this code?
+**TimeMyWork Flow** é uma ferramenta desenvolvida por **niko** que integra duas metodologias comprovadas de produtividade:
+- **Kanban**: Para visualização e organização de tarefas
+- **Pomodoro**: Para gerenciamento de tempo e foco
 
-There are several ways of editing your application.
+## Como executar o projeto
 
-**Use Lovable**
+### Pré-requisitos
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/63af8146-e126-41d4-8343-b25820ddda78) and start prompting.
+- Node.js instalado - [instalar com nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- npm ou yarn
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+### Passos para execução
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# 1. Clone o repositório
+git clone <URL_DO_REPOSITORIO>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# 2. Navegue até o diretório do projeto
+cd timemywork-flow
 
-# Step 3: Install the necessary dependencies.
-npm i
+# 3. Instale as dependências
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 4. Execute o servidor de desenvolvimento
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+O aplicativo estará disponível em `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Tecnologias Utilizadas
 
-**Use GitHub Codespaces**
+Este projeto foi construído com:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- **Vite** - Build tool e dev server
+- **TypeScript** - Tipagem estática
+- **React** - Biblioteca de interface
+- **shadcn/ui** - Componentes de UI
+- **Tailwind CSS** - Framework de CSS
+- **React Router** - Roteamento
+- **Lucide React** - Ícones
 
-## What technologies are used for this project?
+## Funcionalidades
 
-This project is built with:
+- ✅ Quadro Kanban com colunas personalizáveis
+- ⏱️ Timer Pomodoro integrado
+- 📝 Criação e edição de tarefas
+- 🎯 Acompanhamento de progresso
+- 💾 Armazenamento local dos dados
+- 📱 Interface responsiva
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Scripts Disponíveis
 
-## How can I deploy this project?
+- `npm run dev` - Inicia o servidor de desenvolvimento
+- `npm run build` - Gera build de produção
+- `npm run preview` - Visualiza o build de produção
+- `npm run lint` - Executa o linter
 
-Simply open [Lovable](https://lovable.dev/projects/63af8146-e126-41d4-8343-b25820ddda78) and click on Share -> Publish.
+## Autor
 
-## Can I connect a custom domain to my Lovable project?
+Desenvolvido por **niko** 🚀
 
-Yes, you can!
+## Licença
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Este projeto é de código aberto e está disponível sob a licença MIT.

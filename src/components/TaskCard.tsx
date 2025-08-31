@@ -4,11 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
-import { 
-  Play, 
-  Pause, 
-  Square, 
-  Clock, 
+import {
+  Play,
+  Pause,
+  Square,
+  Clock,
   CheckCircle2,
   Circle,
   MoreHorizontal,
@@ -34,12 +34,12 @@ interface TaskCardProps {
 export function TaskCard({ task, onUpdateTask, onMoveTask }: TaskCardProps) {
   const { session, startTimer, pauseTimer, stopTimer, formatTime } = usePomodoro();
   const [showChecklist, setShowChecklist] = useState(false);
-  
+
   const isMyTimer = session?.taskId === task.id;
   const completedItems = task.checklist.filter(item => item.completed).length;
   const totalItems = task.checklist.length;
   const progressPercentage = totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
-  
+
   const canMarkDone = totalItems === 0 || completedItems === totalItems;
 
   const handlePomodoroStart = (duration: number) => {
@@ -66,7 +66,7 @@ export function TaskCard({ task, onUpdateTask, onMoveTask }: TaskCardProps) {
   const getEffortColor = (effort: string) => {
     const colors = {
       XS: 'bg-effort-xs',
-      S: 'bg-effort-s', 
+      S: 'bg-effort-s',
       M: 'bg-effort-m',
       L: 'bg-effort-l',
       XL: 'bg-effort-xl'
@@ -83,8 +83,8 @@ export function TaskCard({ task, onUpdateTask, onMoveTask }: TaskCardProps) {
             <p className="text-xs text-muted-foreground mt-1">#{task.id}</p>
           </div>
           <div className="flex items-center gap-1">
-            <Badge 
-              variant="secondary" 
+            <Badge
+              variant="secondary"
               className={cn("text-xs px-2 py-0.5", getEffortColor(task.effort))}
             >
               {task.effort}
@@ -100,7 +100,7 @@ export function TaskCard({ task, onUpdateTask, onMoveTask }: TaskCardProps) {
                   Move to To Do
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onMoveTask(task.id, 'progress')}>
-                  Move to Progress
+                  Move to Row
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onMoveTask(task.id, 'doing')}>
                   Move to Doing
@@ -117,8 +117,8 @@ export function TaskCard({ task, onUpdateTask, onMoveTask }: TaskCardProps) {
       <CardContent className="pt-0 space-y-3">
         {/* Description */}
         {task.description && (
-          <MarkdownRenderer 
-            content={task.description} 
+          <MarkdownRenderer
+            content={task.description}
             className="line-clamp-3"
           />
         )}
