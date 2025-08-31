@@ -61,6 +61,24 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				kanban: {
+					todo: 'hsl(var(--kanban-todo))',
+					progress: 'hsl(var(--kanban-progress))',
+					doing: 'hsl(var(--kanban-doing))',
+					done: 'hsl(var(--kanban-done))'
+				},
+				effort: {
+					xs: 'hsl(var(--effort-xs))',
+					s: 'hsl(var(--effort-s))',
+					m: 'hsl(var(--effort-m))',
+					l: 'hsl(var(--effort-l))',
+					xl: 'hsl(var(--effort-xl))'
+				},
+				timer: {
+					active: 'hsl(var(--timer-active))',
+					paused: 'hsl(var(--timer-paused))',
+					complete: 'hsl(var(--timer-complete))'
 				}
 			},
 			borderRadius: {
