@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/contexts/I18nContext';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MarkdownEditor } from './MarkdownEditor';
@@ -30,11 +31,15 @@ interface EditTaskDialogProps {
 }
 
 export function EditTaskDialog({ isOpen, onClose, onSave, task }: EditTaskDialogProps) {
+    const { t } = useTranslation();
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [effort, setEffort] = useState<'XS' | 'S' | 'M' | 'L' | 'XL'>('M');
     const [checklist, setChecklist] = useState<Array<{ id: string; text: string; completed: boolean }>>([]);
     const [newChecklistItem, setNewChecklistItem] = useState('');
+    const [githubUrl, setGithubUrl] = useState('');
+    const [pipefyUrl, setPipefyUrl] = useState('');
+    const [notionUrl, setNotionUrl] = useState('');
 
     // Reset form when task changes or dialog opens
     useEffect(() => {
@@ -44,6 +49,9 @@ export function EditTaskDialog({ isOpen, onClose, onSave, task }: EditTaskDialog
             setEffort(task.effort);
             setChecklist(task.checklist || []);
             setNewChecklistItem('');
+            setGithubUrl(task.githubUrl || '');
+            setPipefyUrl(task.pipefyUrl || '');
+            setNotionUrl(task.notionUrl || '');
         }
     }, [isOpen, task]);
 
@@ -77,6 +85,9 @@ export function EditTaskDialog({ isOpen, onClose, onSave, task }: EditTaskDialog
             description: description.trim() || undefined,
             effort,
             checklist: checklist.length > 0 ? checklist : [],
+            githubUrl: githubUrl.trim() || undefined,
+            pipefyUrl: pipefyUrl.trim() || undefined,
+            notionUrl: notionUrl.trim() || undefined,
         };
 
         onSave(updates);
@@ -95,7 +106,7 @@ export function EditTaskDialog({ isOpen, onClose, onSave, task }: EditTaskDialog
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <Edit3 className="h-5 w-5 text-primary" />
-                        Editar Tarefa
+                        {t.dialogs.editTaskTitle}
                     </DialogTitle>
                     <DialogDescription>
                         Faça as alterações necessárias na tarefa abaixo.
@@ -200,6 +211,49 @@ export function EditTaskDialog({ isOpen, onClose, onSave, task }: EditTaskDialog
                                 ))}
                             </div>
                         )}
+                    </div>
+
+                    {/* Links Externos */}
+                    <div className="space-y-4 pt-4 border-t">
+                        <Label className="text-sm font-medium text-muted-foreground">Links Externos</Label>
+
+                        <div className="space-y-3">
+                            <div className="space-y-1">
+                                <Label htmlFor="edit-github-url" className="text-xs text-muted-foreground">GitHub</Label>
+                                <Input
+                                    id="edit-github-url"
+                                    type="url"
+                                    value={githubUrl}
+                                    onChange={(e) => setGithubUrl(e.target.value)}
+                                    placeholder="https://github.com/usuario/repositorio"
+                                    className="text-sm"
+                                />
+                            </div>
+
+                            <div className="space-y-1">
+                                <Label htmlFor="edit-pipefy-url" className="text-xs text-muted-foreground">Pipefy</Label>
+                                <Input
+                                    id="edit-pipefy-url"
+                                    type="url"
+                                    value={pipefyUrl}
+                                    onChange={(e) => setPipefyUrl(e.target.value)}
+                                    placeholder="https://app.pipefy.com/pipes/..."
+                                    className="text-sm"
+                                />
+                            </div>
+
+                            <div className="space-y-1">
+                                <Label htmlFor="edit-notion-url" className="text-xs text-muted-foreground">Notion</Label>
+                                <Input
+                                    id="edit-notion-url"
+                                    type="url"
+                                    value={notionUrl}
+                                    onChange={(e) => setNotionUrl(e.target.value)}
+                                    placeholder="https://notion.so/..."
+                                    className="text-sm"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </form>
 

@@ -63,7 +63,7 @@ Este projeto foi construído com:
 
 ## Autor
 
-Desenvolvido por **niko** 🚀
+Desenvolvido por **nikolasfaria** 🚀
 
 ## Licença
 

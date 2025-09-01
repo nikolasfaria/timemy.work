@@ -21,6 +21,9 @@ export interface Task {
   createdAt: string;
   updatedAt: string;
   timeSpent?: number; // tempo acumulado em segundos
+  githubUrl?: string; // URL do GitHub
+  pipefyUrl?: string; // URL do Pipefy
+  notionUrl?: string; // URL do Notion
 }
 
 export interface PomodoroSession {

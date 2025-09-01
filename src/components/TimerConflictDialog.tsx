@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/contexts/I18nContext';
 import {
     AlertDialog,
     AlertDialogContent,
@@ -19,28 +20,7 @@ interface TimerConflictDialogProps {
     readonly newTaskTitle: string;
 }
 
-const funMessages = [
-    {
-        title: "Calma aí campeão!",
-        subtitle: "Uma coisa de cada vez!"
-    },
-    {
-        title: "Opa, peraí!",
-        subtitle: "Foco é a chave do sucesso!"
-    },
-    {
-        title: "Ei, devagar!",
-        subtitle: "Multitarefa é mito!"
-    },
-    {
-        title: "Relaxa, guerreiro!",
-        subtitle: "Vamos com calma!"
-    },
-    {
-        title: "Segura a onda!",
-        subtitle: "Uma batalha por vez!"
-    }
-];
+
 
 export function TimerConflictDialog({
     isOpen,
@@ -50,10 +30,13 @@ export function TimerConflictDialog({
     currentTaskTitle,
     newTaskTitle
 }: TimerConflictDialogProps) {
+    const { t } = useTranslation();
+
     // Seleciona uma mensagem aleatória apenas quando o diálogo abre
     const randomMessage = useMemo(() => {
-        return funMessages[Math.floor(Math.random() * funMessages.length)];
-    }, [isOpen]); // Só recalcula quando isOpen muda
+        const messages = t.dialogs.timerConflictMessages;
+        return messages[Math.floor(Math.random() * messages.length)];
+    }, [isOpen, t.dialogs.timerConflictMessages]); // Só recalcula quando isOpen muda
 
     return (
         <AlertDialog open={isOpen} onOpenChange={onClose}>
@@ -65,10 +48,10 @@ export function TimerConflictDialog({
                         </div>
                         <div>
                             <AlertDialogTitle className="text-xl font-bold text-left">
-                                {randomMessage.title}
+                                {t.dialogs.timerConflictTitle}
                             </AlertDialogTitle>
                             <AlertDialogDescription className="text-base font-medium text-muted-foreground text-left">
-                                {randomMessage.subtitle}
+                                {t.dialogs.timerConflictSubtitle}
                             </AlertDialogDescription>
                         </div>
                     </div>
@@ -76,17 +59,17 @@ export function TimerConflictDialog({
 
                 <div className="space-y-4">
                     <AlertDialogDescription className="text-sm leading-relaxed">
-                        Você já tem um timer ativo na tarefa <strong>"{currentTaskTitle}"</strong>.
+                        {randomMessage}
                     </AlertDialogDescription>
 
                     <AlertDialogDescription className="text-sm leading-relaxed">
-                        Deseja pausar a tarefa atual e iniciar o timer em <strong>"{newTaskTitle}"</strong>?
+                        {t.dialogs.timerConflictDescription}
                     </AlertDialogDescription>
 
                     <div className="bg-muted/30 rounded-lg p-3">
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Timer className="h-4 w-4" />
-                            <span>A tarefa atual será pausada e movida para onde você escolher.</span>
+                            <span>{t.dialogs.timerConflictDescription}</span>
                         </div>
                     </div>
                 </div>
@@ -97,7 +80,7 @@ export function TimerConflictDialog({
                         onClick={onClose}
                         className="flex-1 sm:flex-none order-3 sm:order-1"
                     >
-                        Cancelar
+                        {t.common.cancel}
                     </Button>
 
                     <Button
@@ -105,14 +88,14 @@ export function TimerConflictDialog({
                         onClick={onMoveToRow}
                         className="flex-1 sm:flex-none order-2"
                     >
-                        Mover para Row
+                        {t.dialogs.moveToProgress}
                     </Button>
 
                     <Button
                         onClick={onMoveToTodo}
                         className="flex-1 sm:flex-none order-1 sm:order-3"
                     >
-                        Mover para To Do
+                        {t.dialogs.moveToTodo}
                     </Button>
                 </AlertDialogFooter>
             </AlertDialogContent>

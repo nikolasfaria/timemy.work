@@ -1,19 +1,19 @@
 import { useState } from 'react';
 import { Task, TaskStatus } from '@/types/task';
+import { useTranslation } from '@/contexts/I18nContext';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { CreateTaskDialog } from '@/components/CreateTaskDialog';
 import { KanbanBoard } from '@/components/KanbanBoard';
 import { TaskDetailsPanel } from '@/components/TaskDetailsPanel';
 import { CenteredDateTime } from '@/components/DynamicGreeting';
-import { ThemeToggle } from '@/components/ThemeToggle';
-import { Button } from '@/components/ui/button';
-import { Archive } from 'lucide-react';
+import { UserMenu } from '@/components/UserMenu';
 import { Link } from 'react-router-dom';
 import heroImage from '@/assets/hero-productivity.webp';
 import timemyworkLogoH from '@/assets/Timemywork-h.webp';
 import timemyworkLogoM from '@/assets/timemywork-m.webp';
 
 const Index = () => {
+  const { t } = useTranslation();
   const [tasks, setTasks] = useLocalStorage<Task[]>('timemywork-tasks', []);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showTaskDetails, setShowTaskDetails] = useState(false);
@@ -108,9 +108,9 @@ const Index = () => {
   if (activeTasks.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background relative">
-        {/* Theme Toggle - Canto Superior Direito */}
+        {/* User Menu - Canto Superior Direito */}
         <div className="absolute top-4 right-4 z-10">
-          <ThemeToggle />
+          <UserMenu taskCount={archivedTasks.length} />
         </div>
         <div className="max-w-4xl mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
           <div className="text-center lg:text-left space-y-6">
@@ -123,7 +123,7 @@ const Index = () => {
                 />
               </div>
               <p className="text-xl text-muted-foreground max-w-md mx-auto lg:mx-0">
-                Organize suas tarefas com kanban e aumente sua produtividade com pomodoro
+                {t.nav.subtitle}
               </p>
             </div>
 
@@ -133,7 +133,7 @@ const Index = () => {
             />
 
             <p className="text-sm text-muted-foreground">
-              Crie sua primeira tarefa para começar
+              {t.nav.createFirstTask}
             </p>
           </div>
 
@@ -176,25 +176,15 @@ const Index = () => {
 
           {/* Controles - Direita */}
           <div className="flex items-center justify-end gap-2 sm:gap-4">
-            <div className="flex items-center gap-1 sm:gap-2">
-              {archivedTasks.length > 0 && (
-                <Link to="/archive">
-                  <Button variant="ghost" size="sm" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground gap-1 h-8 sm:h-9 px-2 sm:px-3 touch-manipulation">
-                    <Archive className="h-3 w-3 sm:h-4 sm:w-4" />
-                    <span className="hidden sm:inline">Archive</span>
-                  </Button>
-                </Link>
-              )}
-              <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
-                {activeTasks.length} tarefa{activeTasks.length !== 1 ? 's' : ''}
-              </span>
-            </div>
+            <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
+              {activeTasks.length} {activeTasks.length === 1 ? t.common.task : t.common.tasks}
+            </span>
             <div className="flex items-center gap-2">
-              <ThemeToggle />
               <CreateTaskDialog
                 onCreateTask={handleCreateTask}
                 existingIds={existingIds}
               />
+              <UserMenu taskCount={archivedTasks.length} />
             </div>
           </div>
         </div>

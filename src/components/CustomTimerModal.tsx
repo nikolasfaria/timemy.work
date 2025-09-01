@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/contexts/I18nContext';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -20,6 +21,7 @@ interface CustomTimerModalProps {
 }
 
 export function CustomTimerModal({ isOpen, onClose, onConfirm, taskTitle }: CustomTimerModalProps) {
+    const { t } = useTranslation();
     const [minutes, setMinutes] = useState('');
     const [error, setError] = useState('');
 
@@ -38,7 +40,7 @@ export function CustomTimerModal({ isOpen, onClose, onConfirm, taskTitle }: Cust
         // Validate input
         const num = parseInt(value);
         if (value && (isNaN(num) || num < 1 || num > 999)) {
-            setError('Digite um número entre 1 e 999');
+            setError('Digite um número entre 1 e 999'); // Keep hardcoded for now
         }
     };
 
@@ -48,7 +50,7 @@ export function CustomTimerModal({ isOpen, onClose, onConfirm, taskTitle }: Cust
             onConfirm(num);
             onClose();
         } else {
-            setError('Digite um número entre 1 e 999');
+            setError('Digite um número entre 1 e 999'); // Keep hardcoded for now
         }
     };
 
@@ -66,7 +68,7 @@ export function CustomTimerModal({ isOpen, onClose, onConfirm, taskTitle }: Cust
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <Clock className="h-5 w-5 text-primary" />
-                        Timer Personalizado
+                        {t.dialogs.customTimerTitle}
                     </DialogTitle>
                     <DialogDescription className="text-sm text-muted-foreground">
                         Defina um tempo personalizado para a tarefa "{taskTitle}"
@@ -76,7 +78,7 @@ export function CustomTimerModal({ isOpen, onClose, onConfirm, taskTitle }: Cust
                 <div className="space-y-4 py-4">
                     <div className="space-y-2">
                         <Label htmlFor="custom-minutes" className="text-sm font-medium">
-                            Minutos
+                            {t.dialogs.customTimerLabel}
                         </Label>
                         <Input
                             id="custom-minutes"
@@ -86,7 +88,7 @@ export function CustomTimerModal({ isOpen, onClose, onConfirm, taskTitle }: Cust
                             value={minutes}
                             onChange={(e) => handleMinutesChange(e.target.value)}
                             onKeyDown={handleKeyDown}
-                            placeholder="Ex: 25"
+                            placeholder={t.dialogs.customTimerPlaceholder}
                             className={error ? "border-destructive focus-visible:ring-destructive" : ""}
                             autoFocus
                         />
@@ -120,14 +122,14 @@ export function CustomTimerModal({ isOpen, onClose, onConfirm, taskTitle }: Cust
                         onClick={onClose}
                         className="flex-1 sm:flex-none"
                     >
-                        Cancelar
+                        {t.common.cancel}
                     </Button>
                     <Button
                         onClick={handleConfirm}
                         disabled={!isValid}
                         className="flex-1 sm:flex-none"
                     >
-                        Iniciar Timer
+                        {t.task.startTimer}
                     </Button>
                 </DialogFooter>
             </DialogContent>

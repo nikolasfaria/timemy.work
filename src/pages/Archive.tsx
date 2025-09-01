@@ -1,16 +1,22 @@
+import { useState } from 'react';
 import { Task } from '@/types/task';
+import { useTranslation } from '@/contexts/I18nContext';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { Timer, ArrowLeft, Calendar, CheckCircle2 } from 'lucide-react';
+import { LanguageSelector } from '@/components/LanguageSelector';
+import { ConfirmationDialog } from '@/components/ConfirmationDialog';
+import { Timer, ArrowLeft, Calendar, CheckCircle2, RotateCcw, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const Archive = () => {
-    const [tasks] = useLocalStorage<Task[]>('timemywork-tasks', []);
+    const { t, formatPlural } = useTranslation();
+    const [tasks, setTasks] = useLocalStorage<Task[]>('timemywork-tasks', []);
+    const [showClearDialog, setShowClearDialog] = useState(false);
 
     // Filter only archived tasks
     const archivedTasks = tasks.filter(task => task.status === 'archived');
@@ -50,6 +56,21 @@ const Archive = () => {
         });
     };
 
+    // Função para restaurar tarefa para "To Do"
+    const handleRestoreTask = (taskId: number) => {
+        setTasks(tasks.map(task =>
+            task.id === taskId
+                ? { ...task, status: 'todo' as const, updatedAt: new Date().toISOString() }
+                : task
+        ));
+    };
+
+    // Função para limpar todas as tarefas arquivadas
+    const handleClearArchive = () => {
+        setTasks(tasks.filter(task => task.status !== 'archived'));
+        setShowClearDialog(false);
+    };
+
     return (
         <div className="min-h-screen bg-background">
             {/* Header */}
@@ -59,19 +80,31 @@ const Archive = () => {
                         <Link to="/">
                             <Button variant="ghost" size="sm" className="gap-1 sm:gap-2 h-8 sm:h-9 px-2 sm:px-3 touch-manipulation">
                                 <ArrowLeft className="h-4 w-4" />
-                                <span className="hidden sm:inline">Voltar</span>
+                                <span className="hidden sm:inline">{t.common.back}</span>
                             </Button>
                         </Link>
                         <div className="flex items-center gap-2 min-w-0">
                             <Timer className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
-                            <h1 className="text-lg sm:text-2xl font-bold truncate">Arquivo</h1>
+                            <h1 className="text-lg sm:text-2xl font-bold truncate">{t.archive.title}</h1>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 sm:gap-4">
                         <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
-                            {archivedTasks.length} tarefa{archivedTasks.length !== 1 ? 's' : ''} arquivada{archivedTasks.length !== 1 ? 's' : ''}
+                            {archivedTasks.length} {formatPlural(archivedTasks.length, t.archive.archivedTasksCount, t.archive.archivedTasksCount + 's')}
                         </span>
+                        {archivedTasks.length > 0 && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setShowClearDialog(true)}
+                                className="gap-1 sm:gap-2 h-8 sm:h-9 px-2 sm:px-3 text-destructive hover:text-destructive hover:bg-destructive/10 touch-manipulation"
+                            >
+                                <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                                <span className="hidden sm:inline">{t.archive.clearArchive}</span>
+                            </Button>
+                        )}
+                        <LanguageSelector />
                         <ThemeToggle />
                     </div>
                 </div>
@@ -82,13 +115,13 @@ const Archive = () => {
                 {archivedTasks.length === 0 ? (
                     <div className="text-center py-8 sm:py-12">
                         <CheckCircle2 className="h-10 w-10 sm:h-12 sm:w-12 mx-auto text-muted-foreground mb-4" />
-                        <h2 className="text-lg sm:text-xl font-semibold mb-2">Nenhuma tarefa arquivada</h2>
+                        <h2 className="text-lg sm:text-xl font-semibold mb-2">{t.archive.noArchivedTasks}</h2>
                         <p className="text-sm sm:text-base text-muted-foreground mb-6 max-w-md mx-auto">
-                            Tarefas concluídas aparecerão aqui automaticamente
+                            {t.archive.tasksWillAppearHere}
                         </p>
                         <Link to="/">
                             <Button className="h-10 sm:h-11 px-6 touch-manipulation">
-                                Voltar ao Kanban
+                                {t.archive.backToKanban}
                             </Button>
                         </Link>
                     </div>
@@ -96,7 +129,7 @@ const Archive = () => {
                     <div className="space-y-4 sm:space-y-6">
                         <div className="flex items-center gap-2 mb-4 sm:mb-6">
                             <CheckCircle2 className="h-5 w-5 text-green-600" />
-                            <h2 className="text-base sm:text-lg font-semibold">Tarefas Concluídas</h2>
+                            <h2 className="text-base sm:text-lg font-semibold">{t.archive.completedTasks}</h2>
                         </div>
 
                         <div className="grid gap-3 sm:gap-4">
@@ -114,7 +147,7 @@ const Archive = () => {
                                                     </CardTitle>
                                                     <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
                                                         <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                                                        <span className="truncate">Concluída em {formatDate(task.updatedAt)}</span>
+                                                        <span className="truncate">{t.archive.completedOn} {formatDate(task.updatedAt)}</span>
                                                     </div>
                                                 </div>
 
@@ -148,9 +181,22 @@ const Archive = () => {
                                             {totalItems > 0 && (
                                                 <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground bg-muted/30 rounded-lg px-3 py-2">
                                                     <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
-                                                    <span className="font-medium">{completedItems}/{totalItems} itens concluídos</span>
+                                                    <span className="font-medium">{completedItems}/{totalItems} {t.archive.itemsCompleted}</span>
                                                 </div>
                                             )}
+
+                                            {/* Actions */}
+                                            <div className="flex justify-end pt-2">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => handleRestoreTask(task.id)}
+                                                    className="gap-1 sm:gap-2 h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm touch-manipulation"
+                                                >
+                                                    <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4" />
+                                                    {t.archive.restoreToTodo}
+                                                </Button>
+                                            </div>
                                         </CardContent>
                                     </Card>
                                 );
@@ -159,6 +205,16 @@ const Archive = () => {
                     </div>
                 )}
             </div>
+
+            {/* Clear Archive Confirmation Dialog */}
+            <ConfirmationDialog
+                isOpen={showClearDialog}
+                onClose={() => setShowClearDialog(false)}
+                onConfirm={handleClearArchive}
+                type="delete"
+                title={t.dialogs.clearArchiveTitle}
+                description={t.dialogs.clearArchiveDescription}
+            />
         </div>
     );
 };

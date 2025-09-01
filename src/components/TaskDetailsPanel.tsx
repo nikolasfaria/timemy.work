@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { usePomodoro } from '@/hooks/usePomodoro';
+import { useTranslation } from '@/contexts/I18nContext';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -15,7 +17,11 @@ import {
     Clock,
     CheckCircle2,
     Edit3,
-    Trash2
+    Trash2,
+    Play,
+    Pause,
+    Square,
+    Timer
 } from 'lucide-react';
 import { Task, TaskStatus } from '@/types/task';
 import { MarkdownRenderer } from './MarkdownRenderer';
@@ -41,20 +47,45 @@ export function TaskDetailsPanel({
     onDeleteTask,
     onEditTask
 }: TaskDetailsPanelProps) {
+    const { t } = useTranslation();
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const { session, startTimer, pauseTimer, stopTimer, formatTime } = usePomodoro();
 
     if (!task) return null;
+
     const completedItems = task.checklist?.filter(item => item.completed).length || 0;
     const totalItems = task.checklist?.length || 0;
     const progressPercentage = totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
-    const canMarkDone = totalItems === 0 || completedItems === totalItems;
 
-    const handleToggleChecklist = (itemId: string) => {
-        const updatedChecklist = task.checklist?.map(item =>
-            item.id === itemId ? { ...item, completed: !item.completed } : item
-        ) || [];
-        onUpdateTask(task.id, { checklist: updatedChecklist });
+    // Verificar se o timer ativo é desta tarefa
+    const isMyTimer = session?.taskId === task.id;
+
+    // Função para atualizar tempo acumulado da tarefa
+    const handleTimeUpdate = (taskId: number, elapsedSeconds: number) => {
+        const currentTimeSpent = task.timeSpent || 0;
+        onUpdateTask(taskId, {
+            timeSpent: currentTimeSpent + elapsedSeconds
+        });
     };
+
+    const handleStartTimer = (duration: number) => {
+        startTimer(task.id, duration, handleTimeUpdate);
+        if (task.status !== 'doing') {
+            onMoveTask(task.id, 'doing');
+        }
+    };
+
+    const handlePauseTimer = () => {
+        pauseTimer(handleTimeUpdate);
+    };
+
+    const handleStopTimer = () => {
+        stopTimer(handleTimeUpdate);
+        if (task.status === 'doing') {
+            onMoveTask(task.id, 'todo');
+        }
+    };
+    const canMarkDone = totalItems === 0 || completedItems === totalItems;
 
     const handleMarkDone = () => {
         if (canMarkDone) {
@@ -133,21 +164,109 @@ export function TaskDetailsPanel({
                     {/* Description */}
                     {task.description && (
                         <div className="space-y-2">
-                            <h3 className="text-sm font-medium text-muted-foreground">Descrição</h3>
+                            <h3 className="text-sm font-medium text-muted-foreground">{t.task.description}</h3>
                             <div className="prose prose-sm max-w-none">
                                 <MarkdownRenderer content={task.description} />
                             </div>
                         </div>
                     )}
 
+                    {/* Timer Section */}
+                    <div className="space-y-3">
+                        <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                            <Timer className="h-4 w-4" />
+                            Pomodoro Timer
+                        </h3>
 
+                        {/* Timer Ativo */}
+                        {isMyTimer && session && !session.isCompleted ? (
+                            <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800/30 rounded-md px-4 py-3">
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-3 h-3 bg-yellow-400 dark:bg-yellow-500 rounded-full animate-pulse"></div>
+                                        <span className="text-lg font-mono font-medium text-yellow-800 dark:text-yellow-200">
+                                            {formatTime(session.remainingTime)}
+                                        </span>
+                                        {session.isPaused && (
+                                            <span className="text-sm text-yellow-600 dark:text-yellow-400">paused</span>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={handlePauseTimer}
+                                        className="flex-1 h-9 flex items-center justify-center gap-2 rounded-md bg-yellow-100 dark:bg-yellow-900/30 hover:bg-yellow-200 dark:hover:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200 transition-colors"
+                                    >
+                                        {session.isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+                                        {session.isPaused ? t.task.resumeTimer || 'Resume' : t.task.pauseTimer || 'Pause'}
+                                    </button>
+                                    <button
+                                        onClick={handleStopTimer}
+                                        className="flex-1 h-9 flex items-center justify-center gap-2 rounded-md bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 text-red-800 dark:text-red-200 transition-colors"
+                                    >
+                                        <Square className="h-4 w-4" />
+                                        {t.task.stopTimer || 'Stop'}
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            /* Timer Inativo - Botões para Iniciar */
+                            <div className="grid grid-cols-2 gap-2">
+                                <button
+                                    onClick={() => handleStartTimer(25)}
+                                    className="h-10 flex items-center justify-center gap-2 rounded-md border border-border hover:bg-accent transition-colors"
+                                    disabled={task.status !== 'doing'}
+                                >
+                                    <Timer className="h-4 w-4" />
+                                    25 {t.common.minutes || 'min'}
+                                </button>
+                                <button
+                                    onClick={() => handleStartTimer(15)}
+                                    className="h-10 flex items-center justify-center gap-2 rounded-md border border-border hover:bg-accent transition-colors"
+                                    disabled={task.status !== 'doing'}
+                                >
+                                    <Timer className="h-4 w-4" />
+                                    15 {t.common.minutes || 'min'}
+                                </button>
+                                <button
+                                    onClick={() => handleStartTimer(5)}
+                                    className="h-10 flex items-center justify-center gap-2 rounded-md border border-border hover:bg-accent transition-colors"
+                                    disabled={task.status !== 'doing'}
+                                >
+                                    <Timer className="h-4 w-4" />
+                                    5 {t.common.minutes || 'min'}
+                                </button>
+                                <button
+                                    onClick={() => handleStartTimer(10)}
+                                    className="h-10 flex items-center justify-center gap-2 rounded-md border border-border hover:bg-accent transition-colors"
+                                    disabled={task.status !== 'doing'}
+                                >
+                                    <Timer className="h-4 w-4" />
+                                    10 {t.common.minutes || 'min'}
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Tempo Acumulado */}
+                        {task.timeSpent && task.timeSpent > 0 && (
+                            <div className="text-xs text-muted-foreground">
+                                Total time: {Math.floor(task.timeSpent / 60)}m {task.timeSpent % 60}s
+                            </div>
+                        )}
+
+                        {task.status !== 'doing' && (
+                            <p className="text-xs text-muted-foreground">
+                                Timer is only available for tasks in "Doing" status
+                            </p>
+                        )}
+                    </div>
 
                     {/* Checklist */}
                     {task.checklist && task.checklist.length > 0 && (
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-sm font-medium text-muted-foreground">
-                                    Checklist ({completedItems}/{totalItems})
+                                    {t.task.checklist} ({completedItems}/{totalItems})
                                 </h3>
                                 <span className="text-xs text-muted-foreground">
                                     {Math.round(progressPercentage)}%
@@ -161,7 +280,12 @@ export function TaskDetailsPanel({
                                     <div key={item.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted/30 transition-colors">
                                         <Checkbox
                                             checked={item.completed}
-                                            onCheckedChange={() => handleToggleChecklist(item.id)}
+                                            onCheckedChange={(checked) => {
+                                                const updatedChecklist = task.checklist?.map(checklistItem =>
+                                                    checklistItem.id === item.id ? { ...checklistItem, completed: !!checked } : checklistItem
+                                                ) || [];
+                                                onUpdateTask(task.id, { checklist: updatedChecklist });
+                                            }}
                                             className="mt-0.5"
                                         />
                                         <span className={cn(

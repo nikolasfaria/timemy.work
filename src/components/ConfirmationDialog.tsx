@@ -34,11 +34,11 @@ export function ConfirmationDialog({
     // Get random fun message for mark done confirmation
     useEffect(() => {
         if (isOpen && type === 'markDone') {
-            const messages = t.confirmation.markDoneMessages;
+            const messages = t.dialogs.markDoneMessages;
             const randomIndex = Math.floor(Math.random() * messages.length);
             setCurrentMessage(messages[randomIndex]);
         }
-    }, [isOpen, type, t.confirmation.markDoneMessages]);
+    }, [isOpen, type, t.dialogs.markDoneMessages]);
 
     const handleConfirm = () => {
         onConfirm();
@@ -52,15 +52,15 @@ export function ConfirmationDialog({
     // Get title and description based on type
     const getTitle = () => {
         if (title) return title;
-        if (type === 'markDone') return t.confirmation.markDoneTitle;
-        if (type === 'delete') return 'Excluir Tarefa';
+        if (type === 'markDone') return t.dialogs.markDoneTitle;
+        if (type === 'delete') return t.dialogs.deleteTaskTitle;
         return t.common.confirm;
     };
 
     const getDescription = () => {
         if (description) return description;
-        if (type === 'markDone') return t.confirmation.markDoneDescription;
-        if (type === 'delete') return 'Tem certeza que deseja excluir esta tarefa? Esta ação não pode ser desfeita.';
+        if (type === 'markDone') return t.dialogs.markDoneDescription;
+        if (type === 'delete') return t.dialogs.deleteTaskDescription;
         return '';
     };
 
@@ -110,14 +110,14 @@ export function ConfirmationDialog({
                     <AlertDialogAction
                         onClick={handleConfirm}
                         className={`flex-1 sm:flex-none ${type === 'delete'
-                                ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground'
-                                : 'bg-primary hover:bg-primary/90'
+                            ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground'
+                            : 'bg-primary hover:bg-primary/90'
                             }`}
                         aria-label={`${t.common.confirm} - Executar a ação`}
                     >
                         {(() => {
                             if (type === 'markDone') return t.common.yes;
-                            if (type === 'delete') return 'Excluir';
+                            if (type === 'delete') return t.common.delete;
                             return t.common.confirm;
                         })()}
                     </AlertDialogAction>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useI18n } from '@/contexts/I18nContext';
 
 interface DateTimeInfo {
     greeting: string;
@@ -9,15 +10,16 @@ interface DateTimeInfo {
 }
 
 export function useDateTime(): DateTimeInfo {
+    const { language, t } = useI18n();
     const [dateTime, setDateTime] = useState<DateTimeInfo>(() => {
         const now = new Date();
-        return formatDateTime(now);
+        return formatDateTime(now, language, t);
     });
 
     useEffect(() => {
         const updateDateTime = () => {
             const now = new Date();
-            setDateTime(formatDateTime(now));
+            setDateTime(formatDateTime(now, language, t));
         };
 
         // Atualiza imediatamente
@@ -27,41 +29,44 @@ export function useDateTime(): DateTimeInfo {
         const interval = setInterval(updateDateTime, 1000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [language, t]);
 
     return dateTime;
 }
 
-function formatDateTime(date: Date): DateTimeInfo {
-    // Saudação fixa
-    const greeting = 'Olá 👋';
+function formatDateTime(date: Date, language: string, t: any): DateTimeInfo {
+    // Saudação traduzida
+    const greeting = t.nav.greeting;
 
-    // Dias da semana em português
-    const daysOfWeek = [
-        'Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira',
-        'Quinta-feira', 'Sexta-feira', 'Sábado'
-    ];
+    // Configurações de localização baseadas no idioma
+    const localeMap: Record<string, string> = {
+        'en-US': 'en-US',
+        'pt-BR': 'pt-BR',
+        'es-ES': 'es-ES'
+    };
 
-    // Meses em português
-    const months = [
-        'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-        'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-    ];
+    const locale = localeMap[language] || 'en-US';
 
-    const dayOfWeek = daysOfWeek[date.getDay()];
-    const dayOfMonth = `${date.getDate()} de ${months[date.getMonth()]}`;
+    // Dias da semana localizados
+    const dayOfWeek = date.toLocaleDateString(locale, { weekday: 'long' });
 
-    // Formato de horário brasileiro (HH:MM:SS)
-    const time = date.toLocaleTimeString('pt-BR', {
+    // Data localizada
+    const dayOfMonth = date.toLocaleDateString(locale, {
+        day: 'numeric',
+        month: 'long'
+    });
+
+    // Horário localizado
+    const time = date.toLocaleTimeString(locale, {
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
-        hour12: false
+        hour12: language === 'en-US' // 12h para inglês, 24h para outros
     });
 
     return {
         greeting,
-        dayOfWeek,
+        dayOfWeek: dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1), // Primeira letra maiúscula
         dayOfMonth,
         time,
         fullDate: date

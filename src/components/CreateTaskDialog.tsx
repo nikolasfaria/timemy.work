@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/contexts/I18nContext';
 import {
   Dialog,
   DialogContent,
@@ -26,6 +27,7 @@ interface CreateTaskDialogProps {
 }
 
 export function CreateTaskDialog({ onCreateTask, existingIds }: CreateTaskDialogProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [id, setId] = useState('');
@@ -34,6 +36,9 @@ export function CreateTaskDialog({ onCreateTask, existingIds }: CreateTaskDialog
   const [complexity, setComplexity] = useState<Complexity>('Medium');
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
   const [newChecklistItem, setNewChecklistItem] = useState('');
+  const [githubUrl, setGithubUrl] = useState('');
+  const [pipefyUrl, setPipefyUrl] = useState('');
+  const [notionUrl, setNotionUrl] = useState('');
 
   const handleAddChecklistItem = () => {
     if (newChecklistItem.trim()) {
@@ -70,6 +75,9 @@ export function CreateTaskDialog({ onCreateTask, existingIds }: CreateTaskDialog
       effort,
       complexity,
       status: 'todo',
+      ...(githubUrl.trim() && { githubUrl: githubUrl.trim() }),
+      ...(pipefyUrl.trim() && { pipefyUrl: pipefyUrl.trim() }),
+      ...(notionUrl.trim() && { notionUrl: notionUrl.trim() }),
     };
 
     onCreateTask(newTask);
@@ -82,6 +90,9 @@ export function CreateTaskDialog({ onCreateTask, existingIds }: CreateTaskDialog
     setComplexity('Medium');
     setChecklist([]);
     setNewChecklistItem('');
+    setGithubUrl('');
+    setPipefyUrl('');
+    setNotionUrl('');
     setOpen(false);
   };
 
@@ -90,29 +101,29 @@ export function CreateTaskDialog({ onCreateTask, existingIds }: CreateTaskDialog
       <DialogTrigger asChild>
         <Button className="gap-2">
           <Plus className="h-4 w-4" />
-          Criar Tarefa
+          {t.nav.createTask}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Criar Nova Tarefa</DialogTitle>
+          <DialogTitle>{t.dialogs.createTaskTitle}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Título *</Label>
+              <Label htmlFor="title">{t.dialogs.taskTitleLabel} *</Label>
               <Input
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Nome da tarefa"
+                placeholder={t.dialogs.taskTitlePlaceholder}
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="id">ID *</Label>
+              <Label htmlFor="id">{t.dialogs.taskIdLabel} *</Label>
               <Input
                 id="id"
                 type="number"
@@ -125,11 +136,11 @@ export function CreateTaskDialog({ onCreateTask, existingIds }: CreateTaskDialog
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Descrição</Label>
+            <Label htmlFor="description">{t.dialogs.taskDescriptionLabel}</Label>
             <MarkdownEditor
               value={description}
               onChange={setDescription}
-              placeholder="Descrição detalhada da tarefa (suporte a markdown)"
+              placeholder={t.dialogs.taskDescriptionPlaceholder}
               expandable={true}
               minHeight={100}
               maxHeight={300}
@@ -138,7 +149,7 @@ export function CreateTaskDialog({ onCreateTask, existingIds }: CreateTaskDialog
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Esforço</Label>
+              <Label>{t.dialogs.taskEffortLabel}</Label>
               <Select value={effort} onValueChange={(value: Effort) => setEffort(value)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -154,7 +165,7 @@ export function CreateTaskDialog({ onCreateTask, existingIds }: CreateTaskDialog
             </div>
 
             <div className="space-y-2">
-              <Label>Complexidade</Label>
+              <Label>{t.dialogs.taskComplexityLabel}</Label>
               <Select value={complexity} onValueChange={(value: Complexity) => setComplexity(value)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -207,12 +218,55 @@ export function CreateTaskDialog({ onCreateTask, existingIds }: CreateTaskDialog
             )}
           </div>
 
+          {/* Links Externos */}
+          <div className="space-y-4 pt-4 border-t">
+            <Label className="text-sm font-medium text-muted-foreground">Links Externos</Label>
+
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <Label htmlFor="github-url" className="text-xs text-muted-foreground">GitHub</Label>
+                <Input
+                  id="github-url"
+                  type="url"
+                  value={githubUrl}
+                  onChange={(e) => setGithubUrl(e.target.value)}
+                  placeholder="https://github.com/usuario/repositorio"
+                  className="text-sm"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label htmlFor="pipefy-url" className="text-xs text-muted-foreground">Pipefy</Label>
+                <Input
+                  id="pipefy-url"
+                  type="url"
+                  value={pipefyUrl}
+                  onChange={(e) => setPipefyUrl(e.target.value)}
+                  placeholder="https://app.pipefy.com/pipes/..."
+                  className="text-sm"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label htmlFor="notion-url" className="text-xs text-muted-foreground">Notion</Label>
+                <Input
+                  id="notion-url"
+                  type="url"
+                  value={notionUrl}
+                  onChange={(e) => setNotionUrl(e.target.value)}
+                  placeholder="https://notion.so/..."
+                  className="text-sm"
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="flex justify-end gap-2 pt-4">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Cancelar
+              {t.common.cancel}
             </Button>
             <Button type="submit">
-              Criar Tarefa
+              {t.nav.createTask}
             </Button>
           </div>
         </form>

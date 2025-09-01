@@ -16,7 +16,8 @@ import {
   Eye,
   Play,
   Pause,
-  Square
+  Square,
+  GripVertical
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -26,12 +27,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Task, TaskStatus } from '@/types/task';
 import { usePomodoro } from '@/hooks/usePomodoro';
-import { MarkdownRenderer } from './MarkdownRenderer';
 import { ConfirmationDialog } from './ConfirmationDialog';
 import { CustomTimerModal } from './CustomTimerModal';
 import { TimerConflictDialog } from './TimerConflictDialog';
 import { EditTaskDialog } from './EditTaskDialog';
-import { TimerCompletedAlert } from './TimerCompletedAlert';
+import { toast } from '@/components/ui/sonner';
+import { ExternalLinksButtons } from './ExternalLinksButtons';
 import { cn } from '@/lib/utils';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -57,9 +58,8 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
   const [pendingTimerDuration, setPendingTimerDuration] = useState<number | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [showTimerCompletedAlert, setShowTimerCompletedAlert] = useState(false);
-  const [dragStartPos, setDragStartPos] = useState<{ x: number; y: number } | null>(null);
-  const [isDragMoving, setIsDragMoving] = useState(false);
+
+
 
   const {
     attributes,
@@ -68,6 +68,7 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
     transform,
     transition,
     isDragging,
+    setActivatorNodeRef,
   } = useSortable({
     id: task.id,
     data: {
@@ -83,10 +84,21 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
 
   // Detectar quando o timer acaba
   useEffect(() => {
-    if (isMyTimer && session && session.isCompleted && !showTimerCompletedAlert) {
-      setShowTimerCompletedAlert(true);
+    if (isMyTimer && session?.isCompleted) {
+      toast(`🎉 ${t.task.timerCompleted}!`, {
+        description: t.task.timerCompletedDescription.replace('{taskTitle}', task.title),
+        action: {
+          label: t.task.markAsDone,
+          onClick: () => handleMarkDone(),
+        },
+        cancel: {
+          label: t.task.resetTimer,
+          onClick: () => handleResetTimerFromAlert(),
+        },
+        duration: 10000, // 10 segundos
+      });
     }
-  }, [isMyTimer, session, showTimerCompletedAlert]);
+  }, [isMyTimer, session, task.title]);
 
   // Função para atualizar tempo acumulado da tarefa
   const handleTimeUpdate = (taskId: number, elapsedSeconds: number) => {
@@ -252,14 +264,9 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
   };
 
   // Funções para o alert de timer concluído
-  const handleTimerCompleted = () => {
-    setShowTimerCompletedAlert(false);
-    // Parar o timer e salvar tempo
-    handleStopTimer();
-  };
+
 
   const handleResetTimerFromAlert = () => {
-    setShowTimerCompletedAlert(false);
     // Limpar sessão atual e iniciar nova com 25 minutos
     stopTimer();
     setTimeout(() => {
@@ -267,58 +274,12 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
     }, 100);
   };
 
-  const handleMoveToTodoFromAlert = () => {
-    setShowTimerCompletedAlert(false);
-    handleStopTimer();
-  };
 
-  const handleCloseTimerAlert = () => {
-    setShowTimerCompletedAlert(false);
-    // Limpar a sessão quando fechar o alert
-    stopTimer();
-  };
 
-  // Funções para detectar clique vs drag
-  const handleMouseDown = (e: React.MouseEvent) => {
-    setDragStartPos({ x: e.clientX, y: e.clientY });
-    setIsDragMoving(false);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (dragStartPos) {
-      const deltaX = Math.abs(e.clientX - dragStartPos.x);
-      const deltaY = Math.abs(e.clientY - dragStartPos.y);
-      // Se moveu mais de 5px, considera como drag
-      if (deltaX > 5 || deltaY > 5) {
-        setIsDragMoving(true);
-      }
-    }
-  };
-
-  const handleInteractionEnd = () => {
-    if (dragStartPos && !isDragMoving && onViewDetails) {
-      // Foi um clique/toque simples, abrir sidebar
+  // Função para abrir detalhes ao clicar no card
+  const handleCardClick = () => {
+    if (onViewDetails) {
       onViewDetails(task);
-    }
-    setDragStartPos(null);
-    setIsDragMoving(false);
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    setDragStartPos({ x: touch.clientX, y: touch.clientY });
-    setIsDragMoving(false);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (dragStartPos) {
-      const touch = e.touches[0];
-      const deltaX = Math.abs(touch.clientX - dragStartPos.x);
-      const deltaY = Math.abs(touch.clientY - dragStartPos.y);
-      // Se moveu mais de 5px, considera como drag
-      if (deltaX > 5 || deltaY > 5) {
-        setIsDragMoving(true);
-      }
     }
   };
 
@@ -339,31 +300,28 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
         style={{ minHeight: showChecklist ? 'fit-content' : 'auto' }}
       >
         {/* Front of card */}
-        <article
+        <div
           ref={setNodeRef}
           style={style}
-          {...attributes}
-          {...listeners}
           className={cn(
-            "w-full shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-all duration-200 cursor-grab active:cursor-grabbing rounded-xl border bg-card text-card-foreground touch-manipulation backface-hidden relative",
-            "active:scale-[0.98] hover:scale-[1.02]",
+            "w-full shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-all duration-200 cursor-pointer rounded-xl border bg-card text-card-foreground touch-manipulation backface-hidden relative",
+            "hover:scale-[1.02]",
             isDragging && "opacity-50 shadow-lg scale-105 rotate-2",
             // Progress border-bottom minimalista
             totalItems > 0 && progressPercentage > 0 && "border-b-2 border-b-muted"
           )}
-          aria-label={`${t.a11y.dragTask}: ${task.title}`}
+          onClick={handleCardClick}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleCardClick();
+            }
+          }}
+          tabIndex={0}
+          role="button"
+          aria-label={`Ver detalhes da tarefa: ${task.title}`}
         >
-          {/* Invisible click handler overlay */}
-          <div
-            className="absolute inset-0 z-0"
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleInteractionEnd}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleInteractionEnd}
-            aria-hidden="true"
-          />
+
           {/* Progress line */}
           {totalItems > 0 && progressPercentage > 0 && (
             <div
@@ -377,56 +335,58 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
                 <h4 className="font-semibold text-sm sm:text-base leading-tight truncate">{task.title}</h4>
                 <p className="text-xs text-muted-foreground mt-1">#{task.id}</p>
               </div>
+
+              {/* Drag Handle */}
+              <button
+                ref={setActivatorNodeRef}
+                {...attributes}
+                {...listeners}
+                className="cursor-grab active:cursor-grabbing text-muted-foreground/50 hover:text-muted-foreground transition-colors p-1 rounded focus:outline-none focus:ring-2 focus:ring-primary/20"
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                aria-label="Arrastar tarefa"
+                type="button"
+              >
+                <GripVertical className="h-4 w-4" />
+              </button>
             </div>
           </CardHeader>
 
           <CardContent className="pt-0 space-y-3 sm:space-y-4 relative">
-            {/* Description */}
-            {task.description && (
-              <MarkdownRenderer
-                content={task.description}
-                className="line-clamp-3 text-sm leading-relaxed"
-              />
-            )}
-
             {/* Timer Ativo */}
             {isMyTimer && session && !session.isCompleted && (
-              <div className="bg-muted/30 rounded-lg p-3 relative z-10">
-                <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+              <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800/30 rounded-md px-3 py-2 relative z-10">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Timer className="h-4 w-4 text-primary flex-shrink-0" />
-                    <span className="text-lg sm:text-xl font-mono font-bold text-center">
+                    <div className="w-2 h-2 bg-yellow-400 dark:bg-yellow-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-mono font-medium text-yellow-800 dark:text-yellow-200">
                       {formatTime(session.remainingTime)}
                     </span>
                     {session.isPaused && (
-                      <span className="text-xs text-muted-foreground">(pausado)</span>
+                      <span className="text-xs text-yellow-600 dark:text-yellow-400">paused</span>
                     )}
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
+                  <div className="flex gap-1">
+                    <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handlePauseTimer();
                       }}
-                      className="h-8 w-8 p-0 rounded-full hover:bg-background/80 touch-manipulation"
+                      className="h-6 w-6 flex items-center justify-center rounded hover:bg-yellow-100 dark:hover:bg-yellow-900/30 touch-manipulation transition-colors"
                       aria-label={session.isPaused ? "Retomar timer" : "Pausar timer"}
                     >
-                      {session.isPaused ? <Play className="h-3 w-3" /> : <Pause className="h-3 w-3" />}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
+                      {session.isPaused ? <Play className="h-3 w-3 text-yellow-700 dark:text-yellow-300" /> : <Pause className="h-3 w-3 text-yellow-700 dark:text-yellow-300" />}
+                    </button>
+                    <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleStopTimer();
                       }}
-                      className="h-8 w-8 p-0 rounded-full hover:bg-background/80 touch-manipulation"
+                      className="h-6 w-6 flex items-center justify-center rounded hover:bg-yellow-100 dark:hover:bg-yellow-900/30 touch-manipulation transition-colors"
                       aria-label="Parar timer"
                     >
-                      <Square className="h-3 w-3" />
-                    </Button>
+                      <Square className="h-3 w-3 text-yellow-700 dark:text-yellow-300" />
+                    </button>
                   </div>
                 </div>
                 {/* Tempo acumulado */}
@@ -465,6 +425,16 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
                 </Button>
               )}
 
+              {/* External Links */}
+              <ExternalLinksButtons
+                githubUrl={task.githubUrl}
+                pipefyUrl={task.pipefyUrl}
+                notionUrl={task.notionUrl}
+                size="xs"
+                variant="ghost"
+                className="relative z-10"
+              />
+
               {/* Checklist Toggle */}
               {totalItems > 0 && (
                 <Button
@@ -475,7 +445,7 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
                     setShowChecklist(!showChecklist);
                   }}
                   className="h-8 w-8 p-0 rounded-full hover:bg-muted/80 touch-manipulation"
-                  aria-label={`${showChecklist ? t.taskCard.hideChecklist : t.taskCard.showChecklist} - ${totalItems} itens`}
+                  aria-label={`${showChecklist ? t.task.hideChecklist : t.task.showChecklist} - ${totalItems} itens`}
                 >
                   <ListChecks className="h-4 w-4" />
                 </Button>
@@ -501,28 +471,28 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
                       className="py-2.5 px-3 text-sm"
                     >
                       <Clock className="h-4 w-4 mr-3" />
-                      5 {t.taskCard.minutes}
+                      5 {t.common.minutes}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handlePomodoroStart(15)}
                       className="py-2.5 px-3 text-sm"
                     >
                       <Clock className="h-4 w-4 mr-3" />
-                      15 {t.taskCard.minutes}
+                      15 {t.common.minutes}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handlePomodoroStart(25)}
                       className="py-2.5 px-3 text-sm"
                     >
                       <Clock className="h-4 w-4 mr-3" />
-                      25 {t.taskCard.minutes}
+                      25 {t.common.minutes}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => setShowCustomTimer(true)}
                       className="py-2.5 px-3 text-sm border-t"
                     >
                       <Settings className="h-4 w-4 mr-3" />
-                      CUSTOM
+                      {t.common.custom}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -550,10 +520,10 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
                     onClick={handleMarkDone}
                     disabled={!canMarkDone}
                     className={cn(!canMarkDone && "opacity-50 cursor-not-allowed")}
-                    aria-label={`${t.taskCard.markAsDone} - ${task.title}`}
+                    aria-label={`${t.task.markAsDone} - ${task.title}`}
                   >
                     <CheckCircle2 className="h-4 w-4 mr-2" />
-                    {t.taskCard.markAsDone}
+                    {t.task.markAsDone}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => setShowDeleteDialog(true)}
@@ -566,10 +536,10 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
               </DropdownMenu>
             </div>
           </CardContent>
-        </article>
+        </div>
 
         {/* Back of card - Checklist */}
-        <article
+        <div
           className={cn(
             "absolute top-0 left-0 w-full shadow-[var(--shadow-card)] rounded-xl border bg-card text-card-foreground backface-hidden rotate-y-180",
             showChecklist ? "min-h-fit" : "h-full"
@@ -597,7 +567,7 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
             {/* Progress */}
             <div className="space-y-2">
               <div className="flex justify-between text-xs sm:text-sm">
-                <span className="text-muted-foreground font-medium">{t.taskCard.progress}</span>
+                <span className="text-muted-foreground font-medium">Progress</span>
                 <span className="font-semibold">{completedItems}/{totalItems}</span>
               </div>
               <Progress
@@ -651,7 +621,7 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
               )}
             </div>
           </CardContent>
-        </article>
+        </div>
       </div>
 
       {/* Custom Timer Modal */}
@@ -698,15 +668,7 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
         task={task}
       />
 
-      {/* Timer Completed Alert */}
-      <TimerCompletedAlert
-        isOpen={showTimerCompletedAlert}
-        task={task}
-        onClose={handleCloseTimerAlert}
-        onMarkDone={handleTimerCompleted}
-        onResetTimer={handleResetTimerFromAlert}
-        onMoveToTodo={handleMoveToTodoFromAlert}
-      />
+
     </div>
   );
 }
