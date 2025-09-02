@@ -48,7 +48,7 @@ interface Translations {
     kanban: {
         columns: {
             todo: string;
-            progress: string;
+            row: string;
             doing: string;
             done: string;
         };
@@ -75,7 +75,7 @@ interface Translations {
         pauseTimer: string;
         stopTimer: string;
         resetTimer: string;
-        timerOnlyInRow: string;
+        timerOnlyInDoing: string;
 
         // Success messages
         taskCompleted: string;
@@ -134,7 +134,6 @@ interface Translations {
         timerConflictSubtitle: string;
         timerConflictDescription: string;
         timerConflictMessages: string[];
-        moveToProgress: string;
         moveToTodo: string;
 
         // Custom timer
@@ -254,8 +253,8 @@ const ptBR: Translations = {
     kanban: {
         columns: {
             todo: 'A Fazer',
-            progress: 'Em Espera',
-            doing: 'Fila',
+            row: 'Row',
+            doing: 'Fazendo',
             done: 'Concluído',
         },
         noTasks: 'Nenhuma tarefa',
@@ -278,7 +277,7 @@ const ptBR: Translations = {
         pauseTimer: 'Pausar Timer',
         stopTimer: 'Parar Timer',
         resetTimer: 'Resetar Timer',
-        timerOnlyInRow: 'Timer disponível apenas para tarefas em "Fila"',
+        timerOnlyInDoing: 'Timer disponível apenas para tarefas em "Fazendo"',
 
         // Success messages
         taskCompleted: 'Parabéns! Tarefa concluída! 🎉',
@@ -347,7 +346,6 @@ const ptBR: Translations = {
             'Respirar fundo e uma coisa de cada vez! 🧘‍♂️',
             'Ei! Não somos polvos para fazer tudo ao mesmo tempo! 🐙',
         ],
-        moveToProgress: 'Mover para Em Espera',
         moveToTodo: 'Mover para A Fazer',
 
         customTimerTitle: 'Timer Personalizado',
@@ -461,8 +459,8 @@ const enUS: Translations = {
     kanban: {
         columns: {
             todo: 'To Do',
-            progress: 'In Progress',
-            doing: 'Row',
+            row: 'Row',
+            doing: 'Doing',
             done: 'Done',
         },
         noTasks: 'No tasks',
@@ -485,7 +483,7 @@ const enUS: Translations = {
         pauseTimer: 'Pause Timer',
         stopTimer: 'Stop Timer',
         resetTimer: 'Reset Timer',
-        timerOnlyInRow: 'Timer is only available for tasks in "Row" status',
+        timerOnlyInDoing: 'Timer is only available for tasks in "Doing" status',
 
         // Success messages
         taskCompleted: 'Congratulations! Task completed! 🎉',
@@ -554,7 +552,6 @@ const enUS: Translations = {
             'Take a deep breath and one thing at a time! 🧘‍♂️',
             'Hey! We\'re not octopuses to do everything at once! 🐙',
         ],
-        moveToProgress: 'Move to In Progress',
         moveToTodo: 'Move to To Do',
 
         customTimerTitle: 'Custom Timer',
@@ -668,8 +665,8 @@ const esES: Translations = {
     kanban: {
         columns: {
             todo: 'Por Hacer',
-            progress: 'En Espera',
-            doing: 'Cola',
+            row: 'Row',
+            doing: 'Haciendo',
             done: 'Completado',
         },
         noTasks: 'Sin tareas',
@@ -692,7 +689,7 @@ const esES: Translations = {
         pauseTimer: 'Pausar Timer',
         stopTimer: 'Detener Timer',
         resetTimer: 'Reiniciar Timer',
-        timerOnlyInRow: 'Timer disponible solo para tareas en "Cola"',
+        timerOnlyInDoing: 'Timer disponible solo para tareas en "Haciendo"',
 
         // Success messages
         taskCompleted: '¡Felicitaciones! ¡Tarea completada! 🎉',
@@ -761,7 +758,6 @@ const esES: Translations = {
             '¡Respira profundo y una cosa a la vez! 🧘‍♂️',
             '¡Oye! ¡No somos pulpos para hacer todo al mismo tiempo! 🐙',
         ],
-        moveToProgress: 'Mover a En Espera',
         moveToTodo: 'Mover a Por Hacer',
 
         customTimerTitle: 'Timer Personalizado',

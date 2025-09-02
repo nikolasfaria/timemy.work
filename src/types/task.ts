@@ -1,4 +1,4 @@
-export type TaskStatus = 'todo' | 'progress' | 'doing' | 'done' | 'archived';
+export type TaskStatus = 'todo' | 'row' | 'doing' | 'done' | 'archived';
 
 export type Effort = 'XS' | 'S' | 'M' | 'L' | 'XL';
 

@@ -16,7 +16,7 @@ A modern productivity application that combines Kanban boards with Pomodoro time
 - **Visual Feedback**: Elegant yellow pastel timer display
 - **Sound Notifications**: Audio alerts when sessions complete
 - **Time Tracking**: Accumulated time per task
-- **Auto Status**: Tasks automatically move to "Row" when timer starts
+- **Auto Status**: Tasks automatically move to "Doing" when timer starts
 
 ### 🎨 Modern UI/UX
 - **Apple-like Design**: Clean, minimalist interface

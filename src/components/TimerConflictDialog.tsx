@@ -14,7 +14,6 @@ import { Timer, AlertTriangle } from 'lucide-react';
 interface TimerConflictDialogProps {
     readonly isOpen: boolean;
     readonly onClose: () => void;
-    readonly onMoveToRow: () => void;
     readonly onMoveToTodo: () => void;
     readonly currentTaskTitle: string;
     readonly newTaskTitle: string;
@@ -25,7 +24,6 @@ interface TimerConflictDialogProps {
 export function TimerConflictDialog({
     isOpen,
     onClose,
-    onMoveToRow,
     onMoveToTodo,
     currentTaskTitle,
     newTaskTitle
@@ -78,22 +76,14 @@ export function TimerConflictDialog({
                     <Button
                         variant="outline"
                         onClick={onClose}
-                        className="flex-1 sm:flex-none order-3 sm:order-1"
+                        className="flex-1 sm:flex-none order-2 sm:order-1"
                     >
                         {t.common.cancel}
                     </Button>
 
                     <Button
-                        variant="secondary"
-                        onClick={onMoveToRow}
-                        className="flex-1 sm:flex-none order-2"
-                    >
-                        {t.dialogs.moveToProgress}
-                    </Button>
-
-                    <Button
                         onClick={onMoveToTodo}
-                        className="flex-1 sm:flex-none order-1 sm:order-3"
+                        className="flex-1 sm:flex-none order-1 sm:order-2"
                     >
                         {t.dialogs.moveToTodo}
                     </Button>

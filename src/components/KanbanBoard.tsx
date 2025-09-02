@@ -33,7 +33,7 @@ interface KanbanBoardProps {
   readonly onCreateTask?: () => void;
 }
 
-const COLUMNS: TaskStatus[] = ['todo', 'doing', 'progress', 'done'];
+const COLUMNS: TaskStatus[] = ['todo', 'row', 'doing', 'done'];
 
 interface ColumnProps {
   status: TaskStatus;
@@ -54,8 +54,8 @@ function Column({ status, tasks, allTasks, onUpdateTask, onMoveTask, onDeleteTas
   const getTitle = () => {
     switch (status) {
       case 'todo': return t.kanban.columns.todo;
+      case 'row': return t.kanban.columns.row;
       case 'doing': return t.kanban.columns.doing;
-      case 'progress': return t.kanban.columns.progress;
       case 'done': return t.kanban.columns.done;
       default: return status;
     }

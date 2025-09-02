@@ -218,21 +218,6 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
     setShowCustomTimer(false);
   };
 
-  const handleTimerConflictMoveToRow = () => {
-    if (session && pendingTimerDuration) {
-      // Parar timer atual e mover tarefa atual para "progress" (Row)
-      stopTimer();
-      onMoveTask(session.taskId, 'progress');
-
-      // Iniciar novo timer e mover nova tarefa para "doing"
-      startTimer(task.id, pendingTimerDuration);
-      onMoveTask(task.id, 'doing');
-
-      // Limpar estados
-      setShowTimerConflict(false);
-      setPendingTimerDuration(null);
-    }
-  };
 
   const handleTimerConflictMoveToTodo = () => {
     if (session && pendingTimerDuration) {
@@ -651,7 +636,6 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
         <TimerConflictDialog
           isOpen={showTimerConflict}
           onClose={handleTimerConflictCancel}
-          onMoveToRow={handleTimerConflictMoveToRow}
           onMoveToTodo={handleTimerConflictMoveToTodo}
           currentTaskTitle={allTasks.find(t => t.id === session.taskId)?.title || `Tarefa #${session.taskId}`}
           newTaskTitle={task.title}

@@ -28,14 +28,14 @@ const COLUMN_CONFIG = [
         color: 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
     },
     {
+        id: 'row',
+        icon: Clock,
+        color: 'bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400'
+    },
+    {
         id: 'doing',
         icon: Play,
         color: 'bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400'
-    },
-    {
-        id: 'progress',
-        icon: Clock,
-        color: 'bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400'
     },
     {
         id: 'done',

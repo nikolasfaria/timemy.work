@@ -94,26 +94,26 @@ const Index = () => {
     // Prepare updates array for batch processing
     const updates: Array<{ id: number; status: TaskStatus }> = [];
 
-    // Regras de limitação: máximo 1 task em "doing" e 1 em "progress" (Row)
+    // Regras de limitação: máximo 1 task em "doing" e 1 em "row"
     if (newStatus === 'doing') {
       const tasksInDoing = currentActiveTasks.filter(task => task.status === 'doing' && task.id !== taskId);
       if (tasksInDoing.length > 0) {
         // Check if there's already a task in progress to move the current doing task
-        const tasksInProgress = currentActiveTasks.filter(task => task.status === 'progress');
-        if (tasksInProgress.length > 0) {
-          // Move current progress task to "To Do" first
-          updates.push({ id: tasksInProgress[0].id, status: 'todo' });
+        const tasksInRow = currentActiveTasks.filter(task => task.status === 'row');
+        if (tasksInRow.length > 0) {
+          // Move current row task to "To Do" first
+          updates.push({ id: tasksInRow[0].id, status: 'todo' });
         }
-        // Move current doing task to progress
-        updates.push({ id: tasksInDoing[0].id, status: 'progress' });
+        // Move current doing task to row
+        updates.push({ id: tasksInDoing[0].id, status: 'row' });
       }
     }
 
-    if (newStatus === 'progress') {
-      const tasksInProgress = currentActiveTasks.filter(task => task.status === 'progress' && task.id !== taskId);
-      if (tasksInProgress.length > 0) {
-        // Move a tarefa atual em "progress" para coluna "To Do"
-        updates.push({ id: tasksInProgress[0].id, status: 'todo' });
+    if (newStatus === 'row') {
+      const tasksInRow = currentActiveTasks.filter(task => task.status === 'row' && task.id !== taskId);
+      if (tasksInRow.length > 0) {
+        // Move a tarefa atual em "row" para coluna "To Do"
+        updates.push({ id: tasksInRow[0].id, status: 'todo' });
       }
     }
 
