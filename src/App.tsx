@@ -16,7 +16,7 @@ const App = () => (
     <I18nProvider defaultLanguage="en-US">
       <TooltipProvider>
         <Toaster />
-        <Sonner />
+        <Sonner position="bottom-right" />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />

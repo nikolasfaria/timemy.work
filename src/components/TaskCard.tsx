@@ -45,9 +45,10 @@ interface TaskCardProps {
   readonly onDeleteTask: (taskId: number) => void;
   readonly onViewDetails?: (task: Task) => void;
   readonly allTasks?: Task[]; // Para buscar o título da tarefa atual do timer
+  readonly isMobile?: boolean;
 }
 
-export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewDetails, allTasks = [] }: TaskCardProps) {
+export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewDetails, allTasks = [], isMobile = false }: TaskCardProps) {
   const { session, startTimer, pauseTimer, stopTimer, formatTime } = usePomodoro();
   const { t } = useTranslation();
   const [showChecklist, setShowChecklist] = useState(false);
@@ -288,10 +289,13 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    opacity: isDragging ? 0.5 : 1,
   };
 
   return (
-    <div className="relative w-full perspective-1000" style={{ minHeight: 'fit-content' }}>
+    <div className="relative w-full drag-perspective" style={{
+      minHeight: 'fit-content'
+    }}>
       <div
         className={cn(
           "relative w-full transition-transform duration-700 transform-style-preserve-3d",
@@ -304,9 +308,9 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
           ref={setNodeRef}
           style={style}
           className={cn(
-            "w-full shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-all duration-200 cursor-pointer rounded-xl border bg-card text-card-foreground touch-manipulation backface-hidden relative",
-            "hover:scale-[1.02]",
-            isDragging && "opacity-50 shadow-lg scale-105 rotate-2",
+            "w-full shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] cursor-pointer rounded-xl border bg-card text-card-foreground touch-manipulation backface-hidden relative transition-all duration-200",
+            "hover:scale-[1.02] hover:-translate-y-1",
+            isDragging && "opacity-50", // Apenas opacity para o card original durante drag
             // Progress border-bottom minimalista
             totalItems > 0 && progressPercentage > 0 && "border-b-2 border-b-muted"
           )}
@@ -336,19 +340,21 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
                 <p className="text-xs text-muted-foreground mt-1">#{task.id}</p>
               </div>
 
-              {/* Drag Handle */}
-              <button
-                ref={setActivatorNodeRef}
-                {...attributes}
-                {...listeners}
-                className="cursor-grab active:cursor-grabbing text-muted-foreground/50 hover:text-muted-foreground transition-colors p-1 rounded focus:outline-none focus:ring-2 focus:ring-primary/20"
-                onClick={(e) => e.stopPropagation()}
-                onKeyDown={(e) => e.stopPropagation()}
-                aria-label="Arrastar tarefa"
-                type="button"
-              >
-                <GripVertical className="h-4 w-4" />
-              </button>
+              {/* Drag Handle - Escondido no mobile */}
+              {!isMobile && (
+                <button
+                  ref={setActivatorNodeRef}
+                  {...attributes}
+                  {...listeners}
+                  className="cursor-grab active:cursor-grabbing text-muted-foreground/50 hover:text-muted-foreground transition-colors p-1 rounded focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
+                  aria-label="Arrastar tarefa"
+                  type="button"
+                >
+                  <GripVertical className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </CardHeader>
 

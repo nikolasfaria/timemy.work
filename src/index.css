@@ -244,3 +244,76 @@ All colors MUST be HSL.
 .greeting-transition {
   animation: greeting-fade 0.3s ease-out;
 }
+
+/* Drag Animation Enhancements */
+.drag-rotation {
+  transform-origin: center center;
+  transition: transform 0.2s ease-out,
+    opacity 0.2s ease-out,
+    box-shadow 0.2s ease-out;
+}
+
+.drag-rotation.is-dragging {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  opacity: 0.9;
+  z-index: 1000;
+}
+
+/* Rotação dinâmica baseada na direção */
+.drag-rotation.is-dragging.drag-left {
+  transform: rotate(-20deg) scale(1.1) translateY(-8px);
+  animation: dragFloatLeft 0.3s ease-out;
+}
+
+.drag-rotation.is-dragging.drag-right {
+  transform: rotate(20deg) scale(1.1) translateY(-8px);
+  animation: dragFloatRight 0.3s ease-out;
+}
+
+/* Animações de entrada para cada direção */
+@keyframes dragFloatLeft {
+  0% {
+    transform: rotate(0deg) scale(1) translateY(0px);
+    opacity: 1;
+  }
+
+  100% {
+    transform: rotate(-20deg) scale(1.1) translateY(-8px);
+    opacity: 0.9;
+  }
+}
+
+@keyframes dragFloatRight {
+  0% {
+    transform: rotate(0deg) scale(1) translateY(0px);
+    opacity: 1;
+  }
+
+  100% {
+    transform: rotate(20deg) scale(1.1) translateY(-8px);
+    opacity: 0.9;
+  }
+}
+
+/* Mobile Touch Optimizations */
+@media (max-width: 768px) {
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+
+  /* Melhora o feedback de toque */
+  .mobile-task-card {
+    transform: scale(1);
+    transition: transform 0.1s ease-out;
+  }
+
+  .mobile-task-card:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Perspective container for 3D effects */
+.drag-perspective {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}

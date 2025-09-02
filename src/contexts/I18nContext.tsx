@@ -54,6 +54,7 @@ interface Translations {
         };
         noTasks: string;
         dragToMove: string;
+        dropHere: string;
     };
 
     // Task Management
@@ -74,6 +75,13 @@ interface Translations {
         pauseTimer: string;
         stopTimer: string;
         resetTimer: string;
+        timerOnlyInRow: string;
+
+        // Success messages
+        taskCompleted: string;
+        taskArchivedNotification: string;
+        undoAction: string;
+        okUnderstood: string;
 
         // Status
         moveToDone: string;
@@ -247,11 +255,12 @@ const ptBR: Translations = {
         columns: {
             todo: 'A Fazer',
             progress: 'Em Espera',
-            doing: 'Fazendo',
+            doing: 'Fila',
             done: 'Concluído',
         },
         noTasks: 'Nenhuma tarefa',
         dragToMove: 'Arraste para mover entre colunas',
+        dropHere: 'Solte aqui',
     },
 
     task: {
@@ -269,6 +278,13 @@ const ptBR: Translations = {
         pauseTimer: 'Pausar Timer',
         stopTimer: 'Parar Timer',
         resetTimer: 'Resetar Timer',
+        timerOnlyInRow: 'Timer disponível apenas para tarefas em "Fila"',
+
+        // Success messages
+        taskCompleted: 'Parabéns! Tarefa concluída! 🎉',
+        taskArchivedNotification: 'Tarefa movida para os arquivados',
+        undoAction: 'Desfazer',
+        okUnderstood: 'Ok, entendi',
 
         moveToDone: 'Mover para Concluído',
         moveToTodo: 'Mover para A Fazer',
@@ -446,11 +462,12 @@ const enUS: Translations = {
         columns: {
             todo: 'To Do',
             progress: 'In Progress',
-            doing: 'Doing',
+            doing: 'Row',
             done: 'Done',
         },
         noTasks: 'No tasks',
         dragToMove: 'Drag to move between columns',
+        dropHere: 'Drop here',
     },
 
     task: {
@@ -468,6 +485,13 @@ const enUS: Translations = {
         pauseTimer: 'Pause Timer',
         stopTimer: 'Stop Timer',
         resetTimer: 'Reset Timer',
+        timerOnlyInRow: 'Timer is only available for tasks in "Row" status',
+
+        // Success messages
+        taskCompleted: 'Congratulations! Task completed! 🎉',
+        taskArchivedNotification: 'Task moved to archives',
+        undoAction: 'Undo',
+        okUnderstood: 'Ok, got it',
 
         moveToDone: 'Move to Done',
         moveToTodo: 'Move to To Do',
@@ -645,11 +669,12 @@ const esES: Translations = {
         columns: {
             todo: 'Por Hacer',
             progress: 'En Espera',
-            doing: 'Haciendo',
+            doing: 'Cola',
             done: 'Completado',
         },
         noTasks: 'Sin tareas',
         dragToMove: 'Arrastra para mover entre columnas',
+        dropHere: 'Suelta aquí',
     },
 
     task: {
@@ -667,6 +692,13 @@ const esES: Translations = {
         pauseTimer: 'Pausar Timer',
         stopTimer: 'Detener Timer',
         resetTimer: 'Reiniciar Timer',
+        timerOnlyInRow: 'Timer disponible solo para tareas en "Cola"',
+
+        // Success messages
+        taskCompleted: '¡Felicitaciones! ¡Tarea completada! 🎉',
+        taskArchivedNotification: 'Tarea movida a los archivos',
+        undoAction: 'Deshacer',
+        okUnderstood: 'Ok, entendido',
 
         moveToDone: 'Mover a Completado',
         moveToTodo: 'Mover a Por Hacer',

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Task, TaskStatus } from '@/types/task';
 import { useTranslation } from '@/contexts/I18nContext';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
@@ -8,8 +8,11 @@ import { TaskDetailsPanel } from '@/components/TaskDetailsPanel';
 import { CenteredDateTime } from '@/components/DynamicGreeting';
 import { UserMenu } from '@/components/UserMenu';
 import { Link } from 'react-router-dom';
+import { fireConfetti } from '@/components/ui/confetti';
+import { useSuccessSound } from '@/hooks/useSuccessSound';
+import { toast } from '@/components/ui/sonner';
 import heroImage from '@/assets/hero-productivity.webp';
-import timemyworkLogoH from '@/assets/Timemywork-h.webp';
+import { Logo } from '@/components/Logo';
 import timemyworkLogoM from '@/assets/timemywork-m.webp';
 
 const Index = () => {
@@ -17,14 +20,42 @@ const Index = () => {
   const [tasks, setTasks] = useLocalStorage<Task[]>('timemywork-tasks', []);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showTaskDetails, setShowTaskDetails] = useState(false);
+  const { playSuccessSound } = useSuccessSound();
+
+  // Inicializar orders para tarefas existentes que não têm
+  React.useEffect(() => {
+    const tasksNeedingOrder = tasks.filter(task => task.order === undefined);
+    if (tasksNeedingOrder.length > 0) {
+      const updatedTasks = tasks.map(task => {
+        if (task.order !== undefined) return task;
+
+        // Calcular ordem baseada na posição atual na coluna
+        const tasksInSameColumn = tasks.filter(t =>
+          t.status === task.status && t.order !== undefined
+        );
+        const maxOrder = tasksInSameColumn.reduce((max, t) =>
+          Math.max(max, t.order || 0), -1);
+
+        return { ...task, order: maxOrder + 1 };
+      });
+      setTasks(updatedTasks);
+    }
+  }, []); // Executa apenas uma vez na inicialização
 
 
   const handleCreateTask = (newTaskData: Omit<Task, 'createdAt' | 'updatedAt'>) => {
     const now = new Date().toISOString();
+
+    // Calcular a ordem para a nova tarefa (no final da coluna de destino)
+    const tasksInSameColumn = tasks.filter(task => task.status === newTaskData.status);
+    const maxOrder = tasksInSameColumn.reduce((max, task) =>
+      Math.max(max, task.order || 0), -1);
+
     const newTask: Task = {
       ...newTaskData,
       createdAt: now,
       updatedAt: now,
+      order: maxOrder + 1,
     };
     setTasks([...tasks, newTask]);
   };
@@ -92,8 +123,45 @@ const Index = () => {
     });
 
     // When a task is marked as "done", automatically archive it
-    const finalStatus = newStatus === 'done' ? 'archived' : newStatus;
-    handleUpdateTask(taskId, { status: finalStatus });
+    if (newStatus === 'done') {
+      // Encontrar a tarefa para obter o título
+      const completedTask = tasks.find(task => task.id === taskId);
+
+      // Celebrar o sucesso! 🎉
+      fireConfetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+
+      // Tocar som de sucesso
+      playSuccessSound();
+
+      // Arquivar a tarefa
+      handleUpdateTask(taskId, { status: 'archived' });
+
+      // Mostrar toast de notificação no canto inferior direito
+      toast(t.task.taskCompleted, {
+        description: completedTask ? `"${completedTask.title}" - ${t.task.taskArchivedNotification}` : t.task.taskArchivedNotification,
+
+        action: {
+          label: t.task.undoAction,
+          onClick: () => {
+            // Desfazer: mover tarefa de volta para "done" (não arquivada)
+            handleUpdateTask(taskId, { status: 'done' });
+          },
+        },
+        cancel: {
+          label: t.task.okUnderstood,
+          onClick: () => {
+            // Apenas fechar o toast
+          },
+        },
+        duration: 8000, // 8 segundos
+      });
+    } else {
+      handleUpdateTask(taskId, { status: newStatus });
+    }
   };
 
   const existingIds = tasks.map(task => task.id);
@@ -116,10 +184,9 @@ const Index = () => {
           <div className="text-center lg:text-left space-y-6">
             <div className="space-y-2">
               <div className="flex items-center justify-center lg:justify-start mb-4">
-                <img
-                  src={timemyworkLogoH}
-                  alt="Time My Work"
+                <Logo
                   className="h-12 w-auto"
+                  alt="Time My Work"
                 />
               </div>
               <p className="text-xl text-muted-foreground max-w-md mx-auto lg:mx-0">
@@ -158,10 +225,9 @@ const Index = () => {
           {/* Logo - Esquerda */}
           <div className="flex items-center">
             {/* Logo para desktop */}
-            <img
-              src={timemyworkLogoH}
-              alt="Time My Work"
+            <Logo
               className="hidden sm:block h-8 w-auto"
+              alt="Time My Work"
             />
             {/* Logo para mobile */}
             <img
@@ -197,6 +263,11 @@ const Index = () => {
         onMoveTask={handleMoveTask}
         onDeleteTask={handleDeleteTask}
         onViewDetails={handleViewDetails}
+        onCreateTask={() => {
+          // Abrir modal de criação de tarefa
+          const createButton = document.querySelector('[data-create-task-trigger]') as HTMLButtonElement;
+          createButton?.click();
+        }}
       />
 
       {/* Task Details Panel */}

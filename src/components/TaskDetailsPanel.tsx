@@ -118,8 +118,8 @@ export function TaskDetailsPanel({
     const getStatusLabel = (status: TaskStatus) => {
         const labels = {
             todo: 'To Do',
-            progress: 'Row',
-            doing: 'Doing',
+            progress: 'In Progress',
+            doing: 'Row',
             done: 'Done',
             archived: 'Archived'
         };
@@ -256,7 +256,7 @@ export function TaskDetailsPanel({
 
                         {task.status !== 'doing' && (
                             <p className="text-xs text-muted-foreground">
-                                Timer is only available for tasks in "Doing" status
+                                {t.task.timerOnlyInRow}
                             </p>
                         )}
                     </div>

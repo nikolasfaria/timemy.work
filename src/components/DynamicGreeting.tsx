@@ -32,7 +32,7 @@ export function DynamicGreeting({ className, showOnMobile = false }: DynamicGree
 
                 <div className="flex items-center gap-2">
                     <span className="text-xs hidden sm:inline">•</span>
-                    <span className="font-mono font-medium text-primary tabular-nums dynamic-greeting-time">
+                    <span className="font-medium text-primary tabular-nums dynamic-greeting-time">
                         {time}
                     </span>
                 </div>
@@ -50,7 +50,7 @@ export function CompactGreeting({ className }: { readonly className?: string }) 
             <span className="text-sm font-medium text-foreground">
                 {greeting.split(' ')[0]} {/* Só o "Olá", "Bom dia", etc. */}
             </span>
-            <span className="text-xs font-mono text-primary tabular-nums dynamic-greeting-time">
+            <span className="text-xs font-medium text-primary tabular-nums dynamic-greeting-time">
                 {time.slice(0, 5)} {/* Só HH:MM */}
             </span>
         </div>
@@ -67,7 +67,7 @@ export function CenteredDateTime({ className }: { readonly className?: string })
             <span className="text-xs">•</span>
             <span className="font-medium">{dayOfMonth}</span>
             <span className="text-xs">•</span>
-            <span className="font-mono font-medium tabular-nums dynamic-greeting-time">
+            <span className="font-medium tabular-nums dynamic-greeting-time">
                 {time}
             </span>
         </div>

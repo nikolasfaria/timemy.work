@@ -24,6 +24,7 @@ export interface Task {
   githubUrl?: string; // URL do GitHub
   pipefyUrl?: string; // URL do Pipefy
   notionUrl?: string; // URL do Notion
+  order?: number; // ordem do card dentro da coluna
 }
 
 export interface PomodoroSession {
