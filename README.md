@@ -1,6 +1,6 @@
 # TimeMy.Work ⏱️
-
 A modern productivity application that combines Kanban boards with Pomodoro timers to help you organize tasks and maximize efficiency.
+![timemygif](https://github.com/user-attachments/assets/27a7008a-5ed4-47e8-8f88-2a72a56b9cca)
 
 ## 🚀 Features
 
