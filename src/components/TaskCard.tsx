@@ -3,6 +3,7 @@ import { CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import {
   Clock,
   CheckCircle2,
@@ -17,7 +18,8 @@ import {
   Play,
   Pause,
   Square,
-  GripVertical
+  GripVertical,
+  Plus
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -59,6 +61,7 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
   const [pendingTimerDuration, setPendingTimerDuration] = useState<number | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [newChecklistItem, setNewChecklistItem] = useState('');
 
 
 
@@ -180,6 +183,26 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
       item.id === itemId ? { ...item, completed: !item.completed } : item
     );
     onUpdateTask(task.id, { checklist: updatedChecklist });
+  };
+
+  const handleAddChecklistItem = () => {
+    if (newChecklistItem.trim()) {
+      const newItem = {
+        id: Date.now().toString(),
+        text: newChecklistItem.trim(),
+        completed: false,
+      };
+      const updatedChecklist = [...task.checklist, newItem];
+      onUpdateTask(task.id, { checklist: updatedChecklist });
+      setNewChecklistItem('');
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddChecklistItem();
+    }
   };
 
   const handleMarkDone = () => {
@@ -427,20 +450,18 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
               />
 
               {/* Checklist Toggle */}
-              {totalItems > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowChecklist(!showChecklist);
-                  }}
-                  className="h-8 w-8 p-0 rounded-full hover:bg-muted/80 touch-manipulation"
-                  aria-label={`${showChecklist ? t.task.hideChecklist : t.task.showChecklist} - ${totalItems} itens`}
-                >
-                  <ListChecks className="h-4 w-4" />
-                </Button>
-              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowChecklist(!showChecklist);
+                }}
+                className="h-8 w-8 p-0 rounded-full hover:bg-muted/80 touch-manipulation"
+                aria-label={`${showChecklist ? t.task.hideChecklist : t.task.showChecklist} - ${totalItems} itens`}
+              >
+                <ListChecks className="h-4 w-4" />
+              </Button>
 
               {/* Pomodoro Timer - apenas para tarefas em "doing" */}
               {!isMyTimer && task.status === 'doing' && (
@@ -570,25 +591,33 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
 
             {/* Checklist Items */}
             <div className="space-y-2">
-              {itemsToShow.map((item) => (
-                <div key={item.id} className="flex items-start space-x-3 py-2 px-2 rounded-lg hover:bg-muted/30 transition-colors">
-                  <Checkbox
-                    checked={item.completed}
-                    onCheckedChange={() => handleToggleChecklist(item.id)}
-                    className="h-4 w-4 mt-0.5 touch-manipulation"
-                    aria-label={`${t.a11y.checklistItem}: ${item.text}`}
-                  />
-                  <span className={cn(
-                    "text-xs sm:text-sm flex-1 leading-relaxed",
-                    item.completed && "line-through text-muted-foreground"
-                  )}>
-                    {item.text}
-                  </span>
+              {totalItems === 0 ? (
+                <div className="text-center py-4 text-muted-foreground">
+                  <ListChecks className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-xs">Nenhum item na lista</p>
+                  <p className="text-xs mt-1">Adicione itens abaixo</p>
                 </div>
-              ))}
+              ) : (
+                itemsToShow.map((item) => (
+                  <div key={item.id} className="flex items-start space-x-3 py-2 px-2 rounded-lg hover:bg-muted/30 transition-colors">
+                    <Checkbox
+                      checked={item.completed}
+                      onCheckedChange={() => handleToggleChecklist(item.id)}
+                      className="h-4 w-4 mt-0.5 touch-manipulation"
+                      aria-label={`${t.a11y.checklistItem}: ${item.text}`}
+                    />
+                    <span className={cn(
+                      "text-xs sm:text-sm flex-1 leading-relaxed",
+                      item.completed && "line-through text-muted-foreground"
+                    )}>
+                      {item.text}
+                    </span>
+                  </div>
+                ))
+              )}
 
               {/* Botão "Mostrar Mais" */}
-              {hasMorePendingItems && !showAllItems && (
+              {totalItems > 0 && hasMorePendingItems && !showAllItems && (
                 <Button
                   variant="ghost"
                   size="sm"
@@ -600,7 +629,7 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
               )}
 
               {/* Botão "Mostrar Menos" */}
-              {showAllItems && hasMorePendingItems && (
+              {totalItems > 0 && showAllItems && hasMorePendingItems && (
                 <Button
                   variant="ghost"
                   size="sm"
@@ -610,6 +639,27 @@ export function TaskCard({ task, onUpdateTask, onMoveTask, onDeleteTask, onViewD
                   Mostrar menos
                 </Button>
               )}
+
+              {/* Adicionar novo item */}
+              <div className="flex items-center space-x-2 py-2 px-2 border-t border-border/50 mt-3 pt-3">
+                <Input
+                  value={newChecklistItem}
+                  onChange={(e) => setNewChecklistItem(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Adicionar novo item..."
+                  className="flex-1 h-8 text-xs"
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleAddChecklistItem}
+                  disabled={!newChecklistItem.trim()}
+                  className="h-8 w-8 p-0 rounded-full hover:bg-primary/10 disabled:opacity-50"
+                  aria-label="Adicionar item à lista"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </CardContent>
         </div>

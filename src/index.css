@@ -167,19 +167,42 @@ All colors MUST be HSL.
 }
 
 /* Markdown Editor Styles */
+/* Base editor container */
 .markdown-editor .w-md-editor {
-  background-color: transparent !important;
+  background-color: hsl(var(--background)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: 8px !important;
 }
 
+/* Text areas and content */
 .markdown-editor .w-md-editor-text-pre,
 .markdown-editor .w-md-editor-text-input,
-.markdown-editor .w-md-editor-text {
+.markdown-editor .w-md-editor-text,
+.markdown-editor .w-md-editor-text textarea,
+.markdown-editor textarea {
   color: hsl(var(--foreground)) !important;
-  background-color: transparent !important;
+  background-color: hsl(var(--background)) !important;
   font-size: 14px !important;
   line-height: 1.5 !important;
+  border: none !important;
 }
 
+/* Specific targeting for the actual input textarea */
+.markdown-editor .w-md-editor-text textarea,
+.markdown-editor .w-md-editor-text-input textarea,
+.markdown-editor .w-md-editor-input {
+  color: hsl(var(--foreground)) !important;
+  background-color: hsl(var(--background)) !important;
+}
+
+/* Placeholder text */
+.markdown-editor .w-md-editor-text textarea::placeholder,
+.markdown-editor .w-md-editor-text-input textarea::placeholder {
+  color: hsl(var(--muted-foreground)) !important;
+  opacity: 0.7 !important;
+}
+
+/* Markdown syntax highlighting */
 .markdown-editor .w-md-editor-text-pre .token.title {
   color: hsl(var(--primary)) !important;
 }
@@ -189,20 +212,39 @@ All colors MUST be HSL.
   font-weight: 600 !important;
 }
 
+.markdown-editor .w-md-editor-text-pre .token.italic {
+  color: hsl(var(--foreground)) !important;
+  font-style: italic !important;
+}
+
 .markdown-editor .w-md-editor-text-pre .token.code {
-  color: hsl(var(--muted-foreground)) !important;
+  color: hsl(var(--accent-foreground)) !important;
   background-color: hsl(var(--muted)) !important;
   padding: 2px 4px !important;
   border-radius: 3px !important;
+  font-family: ui-monospace, SFMono-Regular, monospace !important;
 }
 
 .markdown-editor .w-md-editor-text-pre .token.url {
   color: hsl(var(--primary)) !important;
+  text-decoration: underline !important;
 }
 
+.markdown-editor .w-md-editor-text-pre .token.list {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.markdown-editor .w-md-editor-text-pre .token.blockquote {
+  color: hsl(var(--muted-foreground)) !important;
+  border-left: 4px solid hsl(var(--border)) !important;
+  padding-left: 12px !important;
+}
+
+/* Toolbar */
 .markdown-editor .w-md-editor-toolbar {
-  background-color: hsl(var(--background)) !important;
+  background-color: hsl(var(--muted/50)) !important;
   border-bottom: 1px solid hsl(var(--border)) !important;
+  border-radius: 8px 8px 0 0 !important;
 }
 
 .markdown-editor .w-md-editor-toolbar-divider {
@@ -211,11 +253,140 @@ All colors MUST be HSL.
 
 .markdown-editor .w-md-editor-toolbar button {
   color: hsl(var(--muted-foreground)) !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 4px !important;
+  transition: all 0.2s ease !important;
 }
 
 .markdown-editor .w-md-editor-toolbar button:hover {
   color: hsl(var(--foreground)) !important;
   background-color: hsl(var(--muted)) !important;
+}
+
+.markdown-editor .w-md-editor-toolbar button.active {
+  color: hsl(var(--primary)) !important;
+  background-color: hsl(var(--primary/10)) !important;
+}
+
+/* Focus states */
+.markdown-editor.focus .w-md-editor {
+  border-color: hsl(var(--primary)) !important;
+  box-shadow: 0 0 0 2px hsl(var(--primary/20)) !important;
+}
+
+/* Dark mode specific adjustments */
+.dark .markdown-editor .w-md-editor-text-pre .token.code {
+  background-color: hsl(var(--muted)) !important;
+}
+
+.dark .markdown-editor .w-md-editor-toolbar {
+  background-color: hsl(var(--muted/30)) !important;
+}
+
+/* Ensure text is visible in dark mode */
+.dark .markdown-editor .w-md-editor-text-pre,
+.dark .markdown-editor .w-md-editor-text-input,
+.dark .markdown-editor .w-md-editor-text,
+.dark .markdown-editor .w-md-editor-text textarea,
+.dark .markdown-editor textarea {
+  color: hsl(var(--foreground)) !important;
+  background-color: hsl(var(--background)) !important;
+}
+
+/* Dark mode placeholder */
+.dark .markdown-editor .w-md-editor-text textarea::placeholder,
+.dark .markdown-editor .w-md-editor-text-input textarea::placeholder {
+  color: hsl(var(--muted-foreground)) !important;
+  opacity: 0.8 !important;
+}
+
+/* Force text color for typed content in dark mode */
+.dark .markdown-editor .w-md-editor-text-input,
+.dark .markdown-editor .w-md-editor-text-input * {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Universal text color fix for markdown editor */
+.markdown-editor .w-md-editor-text-input,
+.markdown-editor .w-md-editor-text-input *,
+.markdown-editor .w-md-editor textarea,
+.markdown-editor textarea {
+  color: hsl(var(--foreground)) !important;
+  background-color: hsl(var(--background)) !important;
+}
+
+/* Override any default black text colors */
+.markdown-editor .w-md-editor-text-input {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Ensure caret is visible */
+.markdown-editor .w-md-editor-text textarea:focus,
+.markdown-editor .w-md-editor-text-input:focus {
+  color: hsl(var(--foreground)) !important;
+  caret-color: hsl(var(--foreground)) !important;
+}
+
+/* Maximum specificity override for dark mode text */
+.dark .markdown-editor .w-md-editor .w-md-editor-text-input,
+.dark .markdown-editor .w-md-editor .w-md-editor-text textarea,
+.dark .markdown-editor .w-md-editor textarea,
+html.dark .markdown-editor .w-md-editor-text-input,
+html.dark .markdown-editor .w-md-editor textarea,
+body.dark .markdown-editor .w-md-editor-text-input {
+  color: rgb(248, 250, 252) !important;
+  background-color: rgb(9, 9, 11) !important;
+}
+
+/* Force white text in dark mode with maximum specificity */
+.dark .markdown-editor .w-md-editor-text-input {
+  color: #f8fafc !important;
+}
+
+.dark .markdown-editor textarea.w-md-editor-text-input {
+  color: #f8fafc !important;
+}
+
+/* Target the specific class shown in DevTools */
+.dark textarea.w-md-editor-text-input {
+  color: #f8fafc !important;
+  background-color: #09090b !important;
+}
+
+/* Ultra specific targeting */
+.dark .markdown-editor textarea[class*="w-md-editor-text-input"] {
+  color: white !important;
+}
+
+/* Force override any inherited styles */
+.dark textarea[class="w-md-editor-text-input"]:not([style*="color: rgb(0, 0, 0)"]) {
+  color: #f8fafc !important;
+}
+
+/* Nuclear option - override any black text */
+.dark textarea[style*="color: rgb(248, 250, 252)"] {
+  color: #f8fafc !important;
+}
+
+/* WebKit text fill color override */
+.dark textarea.w-md-editor-text-input,
+.dark .markdown-editor textarea {
+  color: white !important;
+  -webkit-text-fill-color: white !important;
+  text-fill-color: white !important;
+}
+
+/* Force white text on focus */
+.dark textarea.w-md-editor-text-input:focus {
+  color: white !important;
+  -webkit-text-fill-color: white !important;
+}
+
+/* Override any possible autofill styles */
+.dark textarea.w-md-editor-text-input:-webkit-autofill {
+  -webkit-text-fill-color: white !important;
+  color: white !important;
 }
 
 /* Dynamic Greeting Styles */
